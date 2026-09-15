@@ -3,6 +3,7 @@ package io.endertech.item;
 import net.minecraft.item.ItemStack;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import io.endertech.reference.MachineTier;
 import io.endertech.reference.Strings;
 
 public class ETItems {
@@ -21,11 +22,8 @@ public class ETItems {
     }
 
     public static void loadItems() {
-        toolExchangerCreative = itemExchanger
-            .addItem(ItemExchanger.Types.CREATIVE.ordinal(), Strings.EXCHANGER_CREATIVE);
-        toolExchangerRedstone = itemExchanger
-            .addItem(ItemExchanger.Types.REDSTONE.ordinal(), Strings.EXCHANGER_REDSTONE);
-        toolExchangerResonant = itemExchanger
-            .addItem(ItemExchanger.Types.RESONANT.ordinal(), Strings.EXCHANGER_RESONANT);
+        toolExchangerCreative = itemExchanger.addItem(MachineTier.CREATIVE.ordinal(), Strings.EXCHANGER_CREATIVE);
+        toolExchangerRedstone = itemExchanger.addItem(MachineTier.REDSTONE.ordinal(), Strings.EXCHANGER_REDSTONE);
+        toolExchangerResonant = itemExchanger.addItem(MachineTier.RESONANT.ordinal(), Strings.EXCHANGER_RESONANT);
     }
 }

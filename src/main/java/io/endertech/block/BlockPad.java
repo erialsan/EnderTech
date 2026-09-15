@@ -1,12 +1,16 @@
 package io.endertech.block;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -148,9 +152,40 @@ public abstract class BlockPad extends BlockET implements ITileEntityProvider, I
         return ForgeDirection.VALID_DIRECTIONS;
     }
 
-    public abstract IIcon getActiveIcon(int meta);
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs creativeTabs, List blockList) {
+        blockList.add(new ItemStack(this, 1, 0));
+        blockList.add(new ItemStack(this, 1, 2));
+        blockList.add(new ItemStack(this, 1, 1));
+    }
 
-    public abstract IIcon getInactiveIcon(int meta);
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerBlockIcons(IIconRegister iconRegister) {
+        String[] types = { "Creative", "Redstone", "Resonant" };
+        for (String type : types) {
+            IconRegistry.addAndRegisterIcon(
+                getIconTypePrefix() + "_" + type + "_Active",
+                getTextureBase() + type + "_Active",
+                iconRegister);
+            IconRegistry.addAndRegisterIcon(
+                getIconTypePrefix() + "_" + type + "_Inactive",
+                getTextureBase() + type + "_Inactive",
+                iconRegister);
+        }
+    }
+
+    protected abstract String getIconTypePrefix();
+
+    protected abstract String getTextureBase();
+
+    public IIcon getActiveIcon(int meta) {
+        return IconRegistry.getIcon(getIconTypePrefix() + "_" + TextureHelper.metaToType(meta) + "_Active");
+    }
+
+    public IIcon getInactiveIcon(int meta) {
+        return IconRegistry.getIcon(getIconTypePrefix() + "_" + TextureHelper.metaToType(meta) + "_Inactive");
+    }
 
     public IIcon getTopIcon(int meta) {
         return IconRegistry.getIcon("Machine_" + TextureHelper.metaToType(meta) + "_Top");

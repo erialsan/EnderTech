@@ -1,15 +1,20 @@
 package io.endertech.tile;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -17,6 +22,7 @@ import cofh.api.energy.IEnergyContainerItem;
 import cofh.api.energy.IEnergyHandler;
 import cofh.api.tileentity.IReconfigurableFacing;
 import cofh.lib.util.helpers.EnergyHelper;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.endertech.EnderTech;
@@ -29,6 +35,7 @@ import io.endertech.util.RGBA;
 import io.endertech.util.helper.LocalisationHelper;
 import io.endertech.util.helper.NBTHelper;
 import io.endertech.util.helper.RenderHelper;
+import io.endertech.util.helper.StringHelper;
 
 public abstract class TilePad extends TileInventory
     implements IReconfigurableFacing, IEnergyHandler, IOutlineDrawer, IChargeableFromSlot {
@@ -231,6 +238,17 @@ public abstract class TilePad extends TileInventory
         if (chargeItemStack.stackSize <= 0) this.inventory[chargeSlot] = null;
     }
 
+    protected void tickAndSync(boolean activityChanged) {
+        boolean shouldSendUpdate = activityChanged;
+        if (this.ticksSinceLastUpdate == TICKS_PER_UPDATE) {
+            this.ticksSinceLastUpdate = 0;
+            shouldSendUpdate = true;
+        }
+        if (shouldSendUpdate) this.sendDescriptionPacket();
+        this.ticksSinceLastUpdate++;
+        if (this.ticksSinceLastUpdate > TICKS_PER_UPDATE) this.ticksSinceLastUpdate = TICKS_PER_UPDATE;
+    }
+
     @Override
     public boolean drawOutline(DrawBlockHighlightEvent event) {
         if (GeneralConfig.debugRender) {
@@ -342,17 +360,85 @@ public abstract class TilePad extends TileInventory
 
     public abstract int getMaxSendRate(int meta);
 
-    @SideOnly(Side.CLIENT)
-    public abstract void spawnParticles(int meta);
+    @Override
+    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip) {
+        if (this.isActive) {
+            currenttip.add(
+                EnumChatFormatting.GREEN + LocalisationHelper.localiseString("info.active") + EnumChatFormatting.RESET);
+        } else {
+            currenttip.add(
+                EnumChatFormatting.RED + LocalisationHelper.localiseString("info.inactive") + EnumChatFormatting.RESET);
+        }
+
+        int blockMeta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+        if (this.isCreative) currenttip.add(LocalisationHelper.localiseString("info.charge", "Infinite"));
+        else currenttip.add(
+            LocalisationHelper.localiseString(
+                "info.charge",
+                StringHelper.getEnergyString(this.storedEnergy) + " / "
+                    + StringHelper.getEnergyString(this.getMaxEnergyStored(blockMeta))
+                    + " RF"));
+
+        return currenttip;
+    }
 
     @SideOnly(Side.CLIENT)
-    public abstract float[] getParticleColour(Random rand);
+    public void spawnParticles(int meta) {
+        EffectRenderer er = FMLClientHandler.instance()
+            .getClient().effectRenderer;
+        ForgeDirection orientation = this.getOrientation();
+        Random rand = this.worldObj.rand;
+
+        for (int particle = this.getParticleCount(meta); particle > 0; particle--) {
+            double xSign = (rand.nextBoolean() ? -1 : 1);
+            double ySign = (rand.nextBoolean() ? -1 : 1);
+            double zSign = (rand.nextBoolean() ? -1 : 1);
+
+            double xAddition = xSign * (rand.nextDouble() * 0.3) + (0.05 * xSign);
+            double yAddition = ySign * (rand.nextDouble() * 0.3) + (0.05 * ySign);
+            double zAddition = zSign * (rand.nextDouble() * 0.3) + (0.05 * zSign);
+
+            double x = this.xCoord + (0.5F * orientation.offsetX) + 0.5 + xAddition;
+            double y = this.yCoord + (0.5F * orientation.offsetY) + 0.5 + yAddition;
+            double z = this.zCoord + (0.5F * orientation.offsetZ) + 0.5 + zAddition;
+
+            er.addEffect(
+                createParticle(
+                    this.worldObj,
+                    x,
+                    y,
+                    z,
+                    getParticleMaxAge(),
+                    getParticleVelocity(),
+                    getParticleColour(rand),
+                    this.getParticleSizeModifier(meta)));
+        }
+    }
 
     @SideOnly(Side.CLIENT)
-    public abstract int getParticleMaxAge();
+    public float[] getParticleColour(Random rand) {
+        if (this.isItemInChargeSlotTuberous()) return getRainbowParticleColour(rand);
+
+        float r = 1.0F;
+        float g = 0F + (rand.nextFloat() * 0.25F);
+        float b = 0F + (rand.nextFloat() * 0.25F);
+        return new float[] { r, g, b };
+    }
 
     @SideOnly(Side.CLIENT)
-    public abstract double[] getParticleVelocity();
+    public int getParticleMaxAge() {
+        return 16;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public double[] getParticleVelocity() {
+        ForgeDirection orientation = this.getOrientation();
+        return new double[] { orientation.offsetX * 0.15D, orientation.offsetY * 0.15D, orientation.offsetZ * 0.15D };
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected abstract EntityFX createParticle(World world, double x, double y, double z, int maxAge, double[] velocity,
+        float[] colour, float sizeModifier);
 
     @SideOnly(Side.CLIENT)
     public abstract int getParticleCount(int meta);

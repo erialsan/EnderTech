@@ -1,5 +1,6 @@
 package io.endertech.proxy;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -14,6 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.endertech.block.ETBlocks;
 import io.endertech.client.handler.DrawBlockHighlightEventHandler;
+import io.endertech.client.handler.GUIEventHandler;
 import io.endertech.client.handler.KeyBindingHandler;
 import io.endertech.client.render.IconRegistry;
 import io.endertech.modules.dev.fluid.DevETFluids;
@@ -29,6 +31,7 @@ public class ClientProxy extends CommonProxy {
     public void registerTickerHandlers() {
         super.registerTickerHandlers();
 
+        KeyBindingHandler.init();
         FMLCommonHandler.instance()
             .bus()
             .register(new KeyBindingHandler());
@@ -36,6 +39,11 @@ public class ClientProxy extends CommonProxy {
             .bus()
             .register(new MultiblockClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new DrawBlockHighlightEventHandler());
+    }
+
+    @Override
+    public void registerClientPostInit() {
+        MinecraftForge.EVENT_BUS.register(new GUIEventHandler(Minecraft.getMinecraft()));
     }
 
     @Override

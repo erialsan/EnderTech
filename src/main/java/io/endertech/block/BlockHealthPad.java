@@ -1,22 +1,12 @@
 package io.endertech.block;
 
-import java.util.List;
-
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import io.endertech.client.render.IconRegistry;
 import io.endertech.reference.Strings;
 import io.endertech.reference.Textures;
 import io.endertech.tile.TileHealthPad;
-import io.endertech.util.helper.TextureHelper;
 
 public class BlockHealthPad extends BlockPad {
 
@@ -44,41 +34,12 @@ public class BlockHealthPad extends BlockPad {
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs creativeTabs, List blockList) {
-        blockList.add(new ItemStack(this, 1, 0));
-        blockList.add(new ItemStack(this, 1, 2));
-        blockList.add(new ItemStack(this, 1, 1));
+    protected String getIconTypePrefix() {
+        return "HealthPad";
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister iconRegister) {
-        String[] types = { "Creative", "Redstone", "Resonant" };
-        for (String type : types) {
-            IconRegistry.addAndRegisterIcon(
-                "HealthPad_" + type + "_Active",
-                Textures.HEALTH_PAD_BASE + type + "_Active",
-                iconRegister);
-            IconRegistry.addAndRegisterIcon(
-                "HealthPad_" + type + "_Inactive",
-                Textures.HEALTH_PAD_BASE + type + "_Inactive",
-                iconRegister);
-        }
-    }
-
-    @Override
-    public IIcon getActiveIcon(int meta) {
-        return IconRegistry.getIcon("HealthPad_" + TextureHelper.metaToType(meta) + "_Active");
-    }
-
-    @Override
-    public IIcon getInactiveIcon(int meta) {
-        return IconRegistry.getIcon("HealthPad_" + TextureHelper.metaToType(meta) + "_Inactive");
-    }
-
-    public static enum Types {
-        CREATIVE,
-        REDSTONE,
-        RESONANT;
+    protected String getTextureBase() {
+        return Textures.HEALTH_PAD_BASE;
     }
 }

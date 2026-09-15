@@ -18,6 +18,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import io.endertech.config.ItemConfig;
 import io.endertech.handler.WorldEventHandler;
+import io.endertech.reference.MachineTier;
 import io.endertech.util.*;
 import io.endertech.util.helper.*;
 
@@ -46,7 +47,7 @@ public class ItemExchanger extends ItemExchangerBase implements IKeyHandler, IOu
     public static boolean isCreative(ItemStack stack) {
         if (stack == null) return false;
 
-        return stack.getItemDamage() == Types.CREATIVE.ordinal();
+        return stack.getItemDamage() == MachineTier.CREATIVE.ordinal();
     }
 
     @Override
@@ -265,17 +266,7 @@ public class ItemExchanger extends ItemExchangerBase implements IKeyHandler, IOu
 
     @Override
     public EnumRarity getRarity(ItemStack par1ItemStack) {
-        int type = par1ItemStack.getItemDamage();
-
-        if (type == Types.CREATIVE.ordinal()) {
-            return EnumRarity.epic;
-        } else if (type == Types.REDSTONE.ordinal()) {
-            return EnumRarity.uncommon;
-        } else if (type == Types.RESONANT.ordinal()) {
-            return EnumRarity.rare;
-        } else {
-            return EnumRarity.common;
-        }
+        return MachineTier.rarityForMeta(par1ItemStack.getItemDamage());
     }
 
     @Override
@@ -352,9 +343,4 @@ public class ItemExchanger extends ItemExchangerBase implements IKeyHandler, IOu
         return ret;
     }
 
-    public static enum Types {
-        CREATIVE,
-        REDSTONE,
-        RESONANT;
-    }
 }

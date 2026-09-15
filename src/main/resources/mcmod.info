@@ -11,8 +11,8 @@
     "logoFile": "assets/endertech/textures/logo.png",
     "screenshots": [],
     "parent": "",
-    "requiredMods": [],
-    "dependencies": [],
+    "requiredMods": ["CoFHCore"],
+    "dependencies": ["CoFHCore", "ThermalExpansion"],
     "dependants": [],
     "useDependencyInformation": true
 }]

@@ -2,7 +2,7 @@ package io.endertech.tile;
 
 import java.util.*;
 
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,18 +10,16 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.world.World;
 
 import cofh.api.energy.IEnergyContainerItem;
 import cofh.lib.util.helpers.ServerHelper;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.endertech.fx.EntityChargePadFX;
-import io.endertech.gui.client.GuiChargePad;
-import io.endertech.gui.container.ContainerChargePad;
+import io.endertech.gui.client.GuiPad;
+import io.endertech.gui.container.ContainerPad;
 import io.endertech.network.PacketETBase;
 import io.endertech.reference.Strings;
 import io.endertech.util.helper.LocalisationHelper;
@@ -171,18 +169,7 @@ public class TileChargePad extends TilePad {
 
             this.chargeFromGUISlot();
 
-            boolean shouldSendUpdate = false;
-            shouldSendUpdate = shouldSendUpdate || (this.isActive != oldActive);
-
-            if (this.ticksSinceLastUpdate == TICKS_PER_UPDATE) {
-                this.ticksSinceLastUpdate = 0;
-                shouldSendUpdate = true;
-            }
-
-            if (shouldSendUpdate) this.sendDescriptionPacket();
-
-            this.ticksSinceLastUpdate++;
-            if (this.ticksSinceLastUpdate > TICKS_PER_UPDATE) this.ticksSinceLastUpdate = TICKS_PER_UPDATE;
+            this.tickAndSync(this.isActive != oldActive);
         }
 
         if (this.sentPower > 0 && ServerHelper.isClientWorld(this.worldObj)) this.spawnParticles(meta);
@@ -209,81 +196,16 @@ public class TileChargePad extends TilePad {
 
     @Override
     public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip) {
-        if (this.isActive) {
-            currenttip.add(
-                EnumChatFormatting.GREEN + LocalisationHelper.localiseString("info.active") + EnumChatFormatting.RESET);
-        } else {
-            currenttip.add(
-                EnumChatFormatting.RED + LocalisationHelper.localiseString("info.inactive") + EnumChatFormatting.RESET);
-        }
-
-        int blockMeta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-        if (this.isCreative) currenttip.add(LocalisationHelper.localiseString("info.charge", "Infinite"));
-        else currenttip.add(
-            LocalisationHelper.localiseString(
-                "info.charge",
-                StringHelper.getEnergyString(this.storedEnergy) + " / "
-                    + StringHelper.getEnergyString(this.getMaxEnergyStored(blockMeta))
-                    + " RF"));
-
+        currenttip = super.getWailaBody(itemStack, currenttip);
         currenttip.add(
             LocalisationHelper.localiseString("info.sent", StringHelper.getEnergyString(this.sentPower) + " RF/t"));
-
         return currenttip;
     }
 
     @SideOnly(Side.CLIENT)
-    public void spawnParticles(int meta) {
-        EffectRenderer er = FMLClientHandler.instance()
-            .getClient().effectRenderer;
-        ForgeDirection orientation = this.getOrientation();
-        Random rand = this.worldObj.rand;
-
-        for (int particle = this.getParticleCount(meta); particle > 0; particle--) {
-            double xSign = (rand.nextBoolean() ? -1 : 1);
-            double ySign = (rand.nextBoolean() ? -1 : 1);
-            double zSign = (rand.nextBoolean() ? -1 : 1);
-
-            double xAddition = xSign * (rand.nextDouble() * 0.3) + (0.05 * xSign);
-            double yAddition = ySign * (rand.nextDouble() * 0.3) + (0.05 * ySign);
-            double zAddition = zSign * (rand.nextDouble() * 0.3) + (0.05 * zSign);
-
-            double x = this.xCoord + (0.5F * orientation.offsetX) + 0.5 + xAddition;
-            double y = this.yCoord + (0.5F * orientation.offsetY) + 0.5 + yAddition;
-            double z = this.zCoord + (0.5F * orientation.offsetZ) + 0.5 + zAddition;
-
-            er.addEffect(
-                new EntityChargePadFX(
-                    this.worldObj,
-                    x,
-                    y,
-                    z,
-                    getParticleMaxAge(),
-                    getParticleVelocity(),
-                    getParticleColour(rand),
-                    this.getParticleSizeModifier(meta)));
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public int getParticleMaxAge() {
-        return 16;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public double[] getParticleVelocity() {
-        ForgeDirection orientation = this.getOrientation();
-        return new double[] { orientation.offsetX * 0.15D, orientation.offsetY * 0.15D, orientation.offsetZ * 0.15D };
-    }
-
-    @SideOnly(Side.CLIENT)
-    public float[] getParticleColour(Random rand) {
-        if (this.isItemInChargeSlotTuberous()) return getRainbowParticleColour(rand);
-
-        float r = 1.0F;
-        float g = 0F + (rand.nextFloat() * 0.25F);
-        float b = 0F + (rand.nextFloat() * 0.25F);
-        return new float[] { r, g, b };
+    protected EntityFX createParticle(World world, double x, double y, double z, int maxAge, double[] velocity,
+        float[] colour, float sizeModifier) {
+        return new EntityChargePadFX(world, x, y, z, maxAge, velocity, colour, sizeModifier);
     }
 
     @SideOnly(Side.CLIENT)
@@ -302,11 +224,11 @@ public class TileChargePad extends TilePad {
 
     @Override
     public Object getGuiClient(InventoryPlayer inventory) {
-        return new GuiChargePad(inventory, this);
+        return new GuiPad(inventory, this);
     }
 
     @Override
     public Object getGuiServer(InventoryPlayer inventory) {
-        return new ContainerChargePad(inventory, this);
+        return new ContainerPad(inventory, this);
     }
 }

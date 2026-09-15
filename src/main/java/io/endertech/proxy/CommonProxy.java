@@ -1,21 +1,17 @@
 package io.endertech.proxy;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.endertech.handler.WorldEventHandler;
-import io.endertech.modules.dev.handler.MappingEventHandler;
 import io.endertech.multiblock.handler.MultiblockEventHandler;
 import io.endertech.multiblock.handler.MultiblockServerTickHandler;
 
-public class CommonProxy implements IGuiHandler {
+public class CommonProxy {
 
     public static int connectedTexturesRenderID = 0;
 
@@ -27,10 +23,6 @@ public class CommonProxy implements IGuiHandler {
             .bus()
             .register(new MultiblockServerTickHandler());
         MinecraftForge.EVENT_BUS.register(new MultiblockEventHandler());
-
-        FMLCommonHandler.instance()
-            .bus()
-            .register(new MappingEventHandler());
     }
 
     public void registerTESRs() {}
@@ -39,15 +31,7 @@ public class CommonProxy implements IGuiHandler {
 
     public void registerItemRenderers() {}
 
-    @Override
-    public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        return null;
-    }
-
-    @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        return null;
-    }
+    public void registerClientPostInit() {}
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent

@@ -7,4 +7,3 @@ package cofh.lib.util.helpers;
 
 import cofh.lib.CoFHLibProps;
 import cpw.mods.fml.common.API;
-

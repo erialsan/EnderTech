@@ -4,25 +4,22 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-public class TileInventory extends TileET implements IInventory
-{
+public class TileInventory extends TileET implements IInventory {
+
     public ItemStack[] inventory;
 
     @Override
-    public int getSizeInventory()
-    {
+    public int getSizeInventory() {
         return this.inventory.length;
     }
 
     @Override
-    public ItemStack getStackInSlot(int slot)
-    {
+    public ItemStack getStackInSlot(int slot) {
         return this.inventory[slot];
     }
 
     @Override
-    public ItemStack decrStackSize(int slot, int amount)
-    {
+    public ItemStack decrStackSize(int slot, int amount) {
         if (this.inventory[slot] == null) return null;
 
         if (this.inventory[slot].stackSize <= amount) amount = this.inventory[slot].stackSize;
@@ -35,8 +32,7 @@ public class TileInventory extends TileET implements IInventory
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slot)
-    {
+    public ItemStack getStackInSlotOnClosing(int slot) {
         if (this.inventory[slot] == null) return null;
 
         ItemStack itemStack = this.inventory[slot];
@@ -46,8 +42,7 @@ public class TileInventory extends TileET implements IInventory
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack itemStack)
-    {
+    public void setInventorySlotContents(int slot, ItemStack itemStack) {
         this.inventory[slot] = itemStack;
 
         int inventoryStackLimit = this.getInventoryStackLimit();
@@ -57,44 +52,37 @@ public class TileInventory extends TileET implements IInventory
     }
 
     @Override
-    public String getInventoryName()
-    {
+    public String getInventoryName() {
         return this.tileName;
     }
 
     @Override
-    public boolean hasCustomInventoryName()
-    {
+    public boolean hasCustomInventoryName() {
         return !this.tileName.isEmpty();
     }
 
     @Override
-    public int getInventoryStackLimit()
-    {
+    public int getInventoryStackLimit() {
         return 64;
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player)
-    {
+    public boolean isUseableByPlayer(EntityPlayer player) {
         return true;
     }
 
     @Override
-    public void openInventory()
-    {
+    public void openInventory() {
 
     }
 
     @Override
-    public void closeInventory()
-    {
+    public void closeInventory() {
 
     }
 
     @Override
-    public boolean isItemValidForSlot(int slot, ItemStack itemStack)
-    {
+    public boolean isItemValidForSlot(int slot, ItemStack itemStack) {
         return true;
     }
 }

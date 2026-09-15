@@ -1,23 +1,23 @@
 package io.endertech.item;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.util.IIcon;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class ItemExchangerBase extends ItemETEnergyContainer
-{
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.util.IIcon;
+
+public class ItemExchangerBase extends ItemETEnergyContainer {
+
     public HashMap<String, IIcon> animatedCenters = new HashMap<String, IIcon>();
 
     @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
+    public void registerIcons(IIconRegister iconRegister) {
         super.registerIcons(iconRegister);
 
-        Iterator it = items.entrySet().iterator();
-        while (it.hasNext())
-        {
+        Iterator it = items.entrySet()
+            .iterator();
+        while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
 
             String originalName = (String) entry.getValue();
@@ -27,10 +27,8 @@ public class ItemExchangerBase extends ItemETEnergyContainer
         }
     }
 
-    public IIcon getAnimatedIconFromDamage(int i)
-    {
-        if (!this.items.containsKey(i))
-        {
+    public IIcon getAnimatedIconFromDamage(int i) {
+        if (!this.items.containsKey(i)) {
             return null;
         }
 
@@ -38,22 +36,19 @@ public class ItemExchangerBase extends ItemETEnergyContainer
     }
 
     @Override
-    public IIcon getIconFromDamageForRenderPass(int damage, int pass)
-    {
+    public IIcon getIconFromDamageForRenderPass(int damage, int pass) {
         if (pass == 0) return this.getIconFromDamage(damage);
         else if (pass == 1) return this.getAnimatedIconFromDamage(damage);
         else return null;
     }
 
     @Override
-    public boolean requiresMultipleRenderPasses()
-    {
+    public boolean requiresMultipleRenderPasses() {
         return true;
     }
 
     @Override
-    public int getRenderPasses(int metadata)
-    {
+    public int getRenderPasses(int metadata) {
         return 2;
     }
 }

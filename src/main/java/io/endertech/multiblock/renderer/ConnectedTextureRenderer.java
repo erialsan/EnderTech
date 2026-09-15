@@ -1,31 +1,31 @@
 package io.endertech.multiblock.renderer;
 
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
-import io.endertech.multiblock.texture.ConnectedTextureIcon;
-import io.endertech.proxy.CommonProxy;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
+
 import org.lwjgl.opengl.GL11;
 
-public class ConnectedTextureRenderer implements ISimpleBlockRenderingHandler
-{
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import io.endertech.multiblock.texture.ConnectedTextureIcon;
+import io.endertech.proxy.CommonProxy;
+
+public class ConnectedTextureRenderer implements ISimpleBlockRenderingHandler {
+
     public static ConnectedRenderBlocks connectedRenderer = new ConnectedRenderBlocks();
 
-    public void renderWholeSide(Block block, int metadata, RenderBlocks renderer, int side, float nx, float ny, float nz, double dx, double dy, double dz)
-    {
+    public void renderWholeSide(Block block, int metadata, RenderBlocks renderer, int side, float nx, float ny,
+        float nz, double dx, double dy, double dz) {
         Tessellator tessellator = Tessellator.instance;
         ConnectedTextureIcon icon = (ConnectedTextureIcon) block.getIcon(side, metadata);
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             icon.setCurrentRenderIcon(i);
             tessellator.startDrawingQuads();
             tessellator.setNormal(nx, ny, nz);
 
-            switch (side)
-            {
+            switch (side) {
                 case 0:
                     renderer.renderFaceYNeg(block, dx, dy, dz, icon.getCurrentRenderIcon());
                     break;
@@ -51,16 +51,14 @@ public class ConnectedTextureRenderer implements ISimpleBlockRenderingHandler
     }
 
     @Override
-    public void renderInventoryBlock(Block block, int metadata, int modelId, RenderBlocks renderer)
-    {
+    public void renderInventoryBlock(Block block, int metadata, int modelId, RenderBlocks renderer) {
         block.setBlockBoundsForItemRender();
         renderer.setRenderBoundsFromBlock(block);
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
         GL11.glTranslatef(-0.5F, 0F, -0.5F);
 
         IIcon test_icon = block.getIcon(0, metadata);
-        if (test_icon == null || !(test_icon instanceof ConnectedTextureIcon))
-        {
+        if (test_icon == null || !(test_icon instanceof ConnectedTextureIcon)) {
             return;
         }
 
@@ -76,8 +74,8 @@ public class ConnectedTextureRenderer implements ISimpleBlockRenderingHandler
     }
 
     @Override
-    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
-    {
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId,
+        RenderBlocks renderer) {
         this.connectedRenderer.setBlockAccess(world);
         this.connectedRenderer.setBlockToCompareTo(world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
 
@@ -88,14 +86,12 @@ public class ConnectedTextureRenderer implements ISimpleBlockRenderingHandler
     }
 
     @Override
-    public boolean shouldRender3DInInventory(int modelId)
-    {
+    public boolean shouldRender3DInInventory(int modelId) {
         return true;
     }
 
     @Override
-    public int getRenderId()
-    {
+    public int getRenderId() {
         return CommonProxy.connectedTexturesRenderID;
     }
 }

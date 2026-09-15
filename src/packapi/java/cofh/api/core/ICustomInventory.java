@@ -10,10 +10,10 @@ import net.minecraft.item.ItemStack;
  */
 public interface ICustomInventory {
 
-	ItemStack[] getInventorySlots(int inventoryIndex);
+    ItemStack[] getInventorySlots(int inventoryIndex);
 
-	int getSlotStackLimit(int slotIndex);
+    int getSlotStackLimit(int slotIndex);
 
-	void onSlotUpdate();
+    void onSlotUpdate();
 
 }

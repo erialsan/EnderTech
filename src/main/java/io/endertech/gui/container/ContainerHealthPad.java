@@ -1,16 +1,16 @@
 package io.endertech.gui.container;
 
-import cofh.lib.gui.slot.SlotEnergy;
-import io.endertech.tile.TileHealthPad;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.tileentity.TileEntity;
 
-public class ContainerHealthPad extends ContainerETBase
-{
+import cofh.lib.gui.slot.SlotEnergy;
+import io.endertech.tile.TileHealthPad;
+
+public class ContainerHealthPad extends ContainerETBase {
+
     TileHealthPad tileHealthPad;
 
-    public ContainerHealthPad(InventoryPlayer inventoryPlayer, TileEntity tileEntity)
-    {
+    public ContainerHealthPad(InventoryPlayer inventoryPlayer, TileEntity tileEntity) {
         super(inventoryPlayer, tileEntity);
 
         this.tileHealthPad = ((TileHealthPad) tileEntity);

@@ -1,10 +1,12 @@
 package io.endertech.multiblock;
 
+import java.util.Set;
+
+import net.minecraft.nbt.NBTTagCompound;
+
 import io.endertech.network.PacketETBase;
 import io.endertech.tile.TileET;
 import io.endertech.util.BlockCoord;
-import net.minecraft.nbt.NBTTagCompound;
-import java.util.Set;
 
 /**
  * Basic interface for a multiblock machine part. This is defined as an abstract class
@@ -14,8 +16,8 @@ import java.util.Set;
  * <p/>
  * {@link io.endertech.multiblock.MultiblockTileEntityBase}
  */
-public abstract class IMultiblockPart extends TileET
-{
+public abstract class IMultiblockPart extends TileET {
+
     public static final int INVALID_DISTANCE = Integer.MAX_VALUE;
 
     /**
@@ -61,7 +63,8 @@ public abstract class IMultiblockPart extends TileET
      * @param newControllerSize The number of connected blocks in the controller after shedding orphans.
      * @see #onDetached(MultiblockControllerBase)
      */
-    public abstract void onOrphaned(MultiblockControllerBase oldController, int oldControllerSize, int newControllerSize);
+    public abstract void onOrphaned(MultiblockControllerBase oldController, int oldControllerSize,
+        int newControllerSize);
 
     // Multiblock fuse/split helper methods. Here there be dragons.
 
@@ -177,7 +180,8 @@ public abstract class IMultiblockPart extends TileET
      * ALWAYS check to see if a chunk is loaded before querying for its tile entity
      * This part should inform the controller that it is attaching at this time.
      *
-     * @return A Set of multiblock controllers to which this object would like to attach. It should have attached to one of the controllers in this list. Return null if there are no compatible controllers nearby.
+     * @return A Set of multiblock controllers to which this object would like to attach. It should have attached to one
+     *         of the controllers in this list. Return null if there are no compatible controllers nearby.
      */
     public abstract Set<MultiblockControllerBase> attachToNeighbors();
 

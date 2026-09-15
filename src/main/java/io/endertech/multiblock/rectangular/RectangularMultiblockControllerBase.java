@@ -1,29 +1,26 @@
 package io.endertech.multiblock.rectangular;
 
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+
 import io.endertech.multiblock.MultiblockControllerBase;
 import io.endertech.multiblock.MultiblockValidationException;
 import io.endertech.util.BlockCoord;
 import io.endertech.util.helper.LocalisationHelper;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
-public abstract class RectangularMultiblockControllerBase extends MultiblockControllerBase
-{
+public abstract class RectangularMultiblockControllerBase extends MultiblockControllerBase {
 
-    protected RectangularMultiblockControllerBase(World world)
-    {
+    protected RectangularMultiblockControllerBase(World world) {
         super(world);
     }
 
     /**
      * @return True if the machine is "whole" and should be assembled. False otherwise.
      */
-    protected void isMachineWhole() throws MultiblockValidationException
-    {
-        //        LogHelper.info(connectedParts.size() + " blocks connected to multiblock");
-        if (connectedParts.size() < getMinimumNumberOfBlocksForAssembledMachine())
-        {
-            //            LogHelper.info("Machine too small");
+    protected void isMachineWhole() throws MultiblockValidationException {
+        // LogHelper.info(connectedParts.size() + " blocks connected to multiblock");
+        if (connectedParts.size() < getMinimumNumberOfBlocksForAssembledMachine()) {
+            // LogHelper.info("Machine too small");
             throw new MultiblockValidationException("Machine is too small.");
         }
 
@@ -42,29 +39,35 @@ public abstract class RectangularMultiblockControllerBase extends MultiblockCont
         int minY = getMinimumYSize();
         int minZ = getMinimumZSize();
 
-        if (maxX > 0 && deltaX > maxX)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxX, "X"));
+        if (maxX > 0 && deltaX > maxX) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxX, "X"));
         }
-        if (maxY > 0 && deltaY > maxY)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxY, "Y"));
+        if (maxY > 0 && deltaY > maxY) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxY, "Y"));
         }
-        if (maxZ > 0 && deltaZ > maxZ)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxZ, "Z"));
+        if (maxZ > 0 && deltaZ > maxZ) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "large", "most", maxZ, "Z"));
         }
-        if (deltaX < minX)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minX, "X"));
+        if (deltaX < minX) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minX, "X"));
         }
-        if (deltaY < minY)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minY, "Y"));
+        if (deltaY < minY) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minY, "Y"));
         }
-        if (deltaZ < minZ)
-        {
-            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minZ, "Z"));
+        if (deltaZ < minZ) {
+            throw new MultiblockValidationException(
+                LocalisationHelper
+                    .localiseString("info.multiblock.rectangular.dimensions_wrong", "small", "least", minZ, "Z"));
         }
 
         // Now we run a simple check on each block within that volume.
@@ -73,87 +76,83 @@ public abstract class RectangularMultiblockControllerBase extends MultiblockCont
         RectangularMultiblockTileEntityBase part;
         Class<? extends RectangularMultiblockControllerBase> myClass = this.getClass();
 
-        for (int x = minimumCoord.x; x <= maximumCoord.x; x++)
-        {
-            for (int y = minimumCoord.y; y <= maximumCoord.y; y++)
-            {
-                for (int z = minimumCoord.z; z <= maximumCoord.z; z++)
-                {
+        for (int x = minimumCoord.x; x <= maximumCoord.x; x++) {
+            for (int y = minimumCoord.y; y <= maximumCoord.y; y++) {
+                for (int z = minimumCoord.z; z <= maximumCoord.z; z++) {
                     // Okay, figure out what sort of block this should be.
 
                     te = this.worldObj.getTileEntity(x, y, z);
-                    if (te instanceof RectangularMultiblockTileEntityBase)
-                    {
+                    if (te instanceof RectangularMultiblockTileEntityBase) {
                         part = (RectangularMultiblockTileEntityBase) te;
 
                         // Ensure this part should actually be allowed within a cube of this controller's type
-                        if (!myClass.equals(part.getMultiblockControllerType()))
-                        {
-                            throw new MultiblockValidationException(LocalisationHelper.localiseString("info.multiblock.rectangular.part_not_compatible", x, y, z, myClass.getSimpleName()));
+                        if (!myClass.equals(part.getMultiblockControllerType())) {
+                            throw new MultiblockValidationException(
+                                LocalisationHelper.localiseString(
+                                    "info.multiblock.rectangular.part_not_compatible",
+                                    x,
+                                    y,
+                                    z,
+                                    myClass.getSimpleName()));
                         }
-                    } else
-                    {
+                    } else {
                         // This is permitted so that we can incorporate certain non-multiblock parts inside interiors
                         part = null;
                     }
 
                     // Validate block type against both part-level and material-level validators.
                     int extremes = 0;
-                    if (x == minimumCoord.x) { extremes++; }
-                    if (y == minimumCoord.y) { extremes++; }
-                    if (z == minimumCoord.z) { extremes++; }
+                    if (x == minimumCoord.x) {
+                        extremes++;
+                    }
+                    if (y == minimumCoord.y) {
+                        extremes++;
+                    }
+                    if (z == minimumCoord.z) {
+                        extremes++;
+                    }
 
-                    if (x == maximumCoord.x) { extremes++; }
-                    if (y == maximumCoord.y) { extremes++; }
-                    if (z == maximumCoord.z) { extremes++; }
+                    if (x == maximumCoord.x) {
+                        extremes++;
+                    }
+                    if (y == maximumCoord.y) {
+                        extremes++;
+                    }
+                    if (z == maximumCoord.z) {
+                        extremes++;
+                    }
 
-                    if (extremes >= 2)
-                    {
-                        if (part != null)
-                        {
+                    if (extremes >= 2) {
+                        if (part != null) {
                             part.isGoodForFrame();
-                        } else
-                        {
+                        } else {
                             isBlockGoodForFrame(this.worldObj, x, y, z);
                         }
-                    } else if (extremes == 1)
-                    {
-                        if (y == maximumCoord.y)
-                        {
-                            if (part != null)
-                            {
+                    } else if (extremes == 1) {
+                        if (y == maximumCoord.y) {
+                            if (part != null) {
                                 part.isGoodForTop();
-                            } else
-                            {
+                            } else {
                                 isBlockGoodForTop(this.worldObj, x, y, z);
                             }
-                        } else if (y == minimumCoord.y)
-                        {
-                            if (part != null)
-                            {
+                        } else if (y == minimumCoord.y) {
+                            if (part != null) {
                                 part.isGoodForBottom();
-                            } else
-                            {
+                            } else {
                                 isBlockGoodForBottom(this.worldObj, x, y, z);
                             }
-                        } else
-                        {
+                        } else {
                             // Side
-                            if (part != null)
-                            {
+                            if (part != null) {
                                 part.isGoodForSides();
-                            } else
-                            {
+                            } else {
                                 isBlockGoodForSides(this.worldObj, x, y, z);
                             }
                         }
-                    } else
-                    {
-                        if (part != null)
-                        {
+                    } else {
+                        if (part != null) {
                             part.isGoodForInterior();
-                        } else
-                        {
+                        } else {
                             isBlockGoodForInterior(this.worldObj, x, y, z);
                         }
                     }

@@ -1,49 +1,45 @@
 package io.endertech.gui.client;
 
-import cofh.lib.gui.GuiBase;
-import cofh.lib.render.RenderHelper;
-import io.endertech.tile.TileET;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
+
 import org.lwjgl.opengl.GL11;
+
+import cofh.lib.gui.GuiBase;
+import cofh.lib.render.RenderHelper;
+import io.endertech.tile.TileET;
 
 // Contains overridden CoFHLib functions for more advanced fluid rendering in GUIs
 
-public class GuiETBase extends GuiBase
-{
+public class GuiETBase extends GuiBase {
+
     public TileET tileET;
 
-    public GuiETBase(Container container, ResourceLocation texture, TileET tileET)
-    {
+    public GuiETBase(Container container, ResourceLocation texture, TileET tileET) {
         super(container, texture);
 
         this.tileET = tileET;
     }
 
     @Override
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
     }
 
     @Override
-    public void updateScreen()
-    {
+    public void updateScreen() {
         super.updateScreen();
 
-        if (!tileET.hasGui())
-        {
+        if (!tileET.hasGui()) {
             this.mc.thePlayer.closeScreen();
         }
     }
 
-    public void drawFluidWithOpacity(int x, int y, FluidStack fluid, int width, int height, float opacity)
-    {
-        if (fluid == null || fluid.getFluid() == null)
-        {
+    public void drawFluidWithOpacity(int x, int y, FluidStack fluid, int width, int height, float opacity) {
+        if (fluid == null || fluid.getFluid() == null) {
             return;
         }
 
@@ -53,33 +49,45 @@ public class GuiETBase extends GuiBase
 
         RenderHelper.setBlockTextureSheet();
 
-        this.drawTiledTextureWithColour(x, y, fluid.getFluid().getIcon(fluid), width, height, fluid.getFluid().getColor(fluid), opacity);
+        this.drawTiledTextureWithColour(
+            x,
+            y,
+            fluid.getFluid()
+                .getIcon(fluid),
+            width,
+            height,
+            fluid.getFluid()
+                .getColor(fluid),
+            opacity);
         GL11.glPopMatrix();
     }
 
-    public void drawTiledTextureWithColour(int x, int y, IIcon icon, int width, int height, int colour, float opacity)
-    {
+    public void drawTiledTextureWithColour(int x, int y, IIcon icon, int width, int height, int colour, float opacity) {
         int i = 0;
         int j = 0;
 
         int drawHeight = 0;
         int drawWidth = 0;
 
-        for (i = 0; i < width; i += 16)
-        {
-            for (j = 0; j < height; j += 16)
-            {
+        for (i = 0; i < width; i += 16) {
+            for (j = 0; j < height; j += 16) {
                 drawWidth = Math.min(width - i, 16);
                 drawHeight = Math.min(height - j, 16);
-                this.drawScaledTexturedModelRectFromIconWithColour(x + i, y + j, icon, drawWidth, drawHeight, colour, opacity);
+                this.drawScaledTexturedModelRectFromIconWithColour(
+                    x + i,
+                    y + j,
+                    icon,
+                    drawWidth,
+                    drawHeight,
+                    colour,
+                    opacity);
             }
         }
     }
 
-    public void drawScaledTexturedModelRectFromIconWithColour(int x, int y, IIcon icon, int width, int height, int colour, float opacity)
-    {
-        if (icon == null)
-        {
+    public void drawScaledTexturedModelRectFromIconWithColour(int x, int y, IIcon icon, int width, int height,
+        int colour, float opacity) {
+        if (icon == null) {
             return;
         }
         double minU = icon.getMinU();
@@ -97,7 +105,12 @@ public class GuiETBase extends GuiBase
         tessellator.setColorRGBA_F(r, g, b, opacity);
 
         tessellator.addVertexWithUV(x + 0, y + height, this.zLevel, minU, minV + (maxV - minV) * height / 16F);
-        tessellator.addVertexWithUV(x + width, y + height, this.zLevel, minU + (maxU - minU) * width / 16F, minV + (maxV - minV) * height / 16F);
+        tessellator.addVertexWithUV(
+            x + width,
+            y + height,
+            this.zLevel,
+            minU + (maxU - minU) * width / 16F,
+            minV + (maxV - minV) * height / 16F);
         tessellator.addVertexWithUV(x + width, y + 0, this.zLevel, minU + (maxU - minU) * width / 16F, minV);
         tessellator.addVertexWithUV(x + 0, y + 0, this.zLevel, minU, minV);
         tessellator.draw();

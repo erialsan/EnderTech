@@ -1,20 +1,21 @@
 package io.endertech.multiblock.rectangular;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import net.minecraftforge.common.util.ForgeDirection;
+
 import io.endertech.multiblock.MultiblockControllerBase;
 import io.endertech.multiblock.MultiblockTileEntityBase;
 import io.endertech.multiblock.MultiblockValidationException;
 import io.endertech.util.BlockCoord;
-import net.minecraftforge.common.util.ForgeDirection;
-import java.util.HashSet;
-import java.util.Set;
 
-public abstract class RectangularMultiblockTileEntityBase extends MultiblockTileEntityBase
-{
+public abstract class RectangularMultiblockTileEntityBase extends MultiblockTileEntityBase {
+
     PartPosition position;
     Set<ForgeDirection> outwards;
 
-    public RectangularMultiblockTileEntityBase()
-    {
+    public RectangularMultiblockTileEntityBase() {
         super();
 
         position = PartPosition.Unknown;
@@ -22,34 +23,29 @@ public abstract class RectangularMultiblockTileEntityBase extends MultiblockTile
     }
 
     // Positional Data
-    public Set<ForgeDirection> getOutwardsDir()
-    {
+    public Set<ForgeDirection> getOutwardsDir() {
         return outwards;
     }
 
-    public ForgeDirection getFirstOutwardsDir()
-    {
+    public ForgeDirection getFirstOutwardsDir() {
         if (outwards == null || outwards.isEmpty()) return null;
-        else return outwards.iterator().next();
+        else return outwards.iterator()
+            .next();
     }
 
-    public PartPosition getPartPosition()
-    {
+    public PartPosition getPartPosition() {
         return position;
     }
 
     // Handlers from MultiblockTileEntityBase
     @Override
-    public void onAttached(MultiblockControllerBase newController)
-    {
+    public void onAttached(MultiblockControllerBase newController) {
         super.onAttached(newController);
         recalculateOutwardsDirection(newController.getMinimumCoord(), newController.getMaximumCoord());
     }
 
-
     @Override
-    public void onMachineAssembled(MultiblockControllerBase controller)
-    {
+    public void onMachineAssembled(MultiblockControllerBase controller) {
         BlockCoord maxCoord = controller.getMaximumCoord();
         BlockCoord minCoord = controller.getMinimumCoord();
 
@@ -58,83 +54,71 @@ public abstract class RectangularMultiblockTileEntityBase extends MultiblockTile
     }
 
     @Override
-    public void onMachineBroken()
-    {
+    public void onMachineBroken() {
         position = PartPosition.Unknown;
         outwards = new HashSet<ForgeDirection>();
     }
 
-    private boolean isOnBottomFace(BlockCoord minCoord, BlockCoord coord)
-    {
+    private boolean isOnBottomFace(BlockCoord minCoord, BlockCoord coord) {
         return minCoord.y == coord.y;
     }
 
-    private boolean isOnTopFace(BlockCoord maxCoord, BlockCoord coord)
-    {
+    private boolean isOnTopFace(BlockCoord maxCoord, BlockCoord coord) {
         return maxCoord.y == coord.y;
     }
 
-    private boolean isOnWestFace(BlockCoord minCoord, BlockCoord coord)
-    {
+    private boolean isOnWestFace(BlockCoord minCoord, BlockCoord coord) {
         return minCoord.x == coord.x;
     }
 
-    private boolean isOnEastFace(BlockCoord maxCoord, BlockCoord coord)
-    {
+    private boolean isOnEastFace(BlockCoord maxCoord, BlockCoord coord) {
         return maxCoord.x == coord.x;
     }
 
-    private boolean isOnFrontFace(BlockCoord minCoord, BlockCoord coord)
-    {
+    private boolean isOnFrontFace(BlockCoord minCoord, BlockCoord coord) {
         return minCoord.z == coord.z;
     }
 
-    private boolean isOnBackFace(BlockCoord maxCoord, BlockCoord coord)
-    {
+    private boolean isOnBackFace(BlockCoord maxCoord, BlockCoord coord) {
         return maxCoord.z == coord.z;
     }
 
     // Positional helpers
-    public void recalculateOutwardsDirection(BlockCoord minCoord, BlockCoord maxCoord)
-    {
+    public void recalculateOutwardsDirection(BlockCoord minCoord, BlockCoord maxCoord) {
         position = PartPosition.Unknown;
 
         BlockCoord coord = new BlockCoord(this.xCoord, this.yCoord, this.zCoord);
 
         int facesMatching = 0;
-        if (maxCoord.x == coord.x || minCoord.x == coord.x) { facesMatching++; }
-        if (maxCoord.y == coord.y || minCoord.y == coord.y) { facesMatching++; }
-        if (maxCoord.z == coord.z || minCoord.z == coord.z) { facesMatching++; }
+        if (maxCoord.x == coord.x || minCoord.x == coord.x) {
+            facesMatching++;
+        }
+        if (maxCoord.y == coord.y || minCoord.y == coord.y) {
+            facesMatching++;
+        }
+        if (maxCoord.z == coord.z || minCoord.z == coord.z) {
+            facesMatching++;
+        }
 
-        if (facesMatching <= 0)
-        {
+        if (facesMatching <= 0) {
             position = PartPosition.Interior;
-        } else if (facesMatching >= 3)
-        {
+        } else if (facesMatching >= 3) {
             position = PartPosition.FrameCorner;
-        } else if (facesMatching == 2)
-        {
+        } else if (facesMatching == 2) {
             position = PartPosition.Frame;
-        } else
-        {
+        } else {
             // 1 face matches
-            if (maxCoord.x == this.xCoord)
-            {
+            if (maxCoord.x == this.xCoord) {
                 position = PartPosition.EastFace;
-            } else if (minCoord.x == this.xCoord)
-            {
+            } else if (minCoord.x == this.xCoord) {
                 position = PartPosition.WestFace;
-            } else if (maxCoord.z == this.zCoord)
-            {
+            } else if (maxCoord.z == this.zCoord) {
                 position = PartPosition.SouthFace;
-            } else if (minCoord.z == this.zCoord)
-            {
+            } else if (minCoord.z == this.zCoord) {
                 position = PartPosition.NorthFace;
-            } else if (maxCoord.y == this.yCoord)
-            {
+            } else if (maxCoord.y == this.yCoord) {
                 position = PartPosition.TopFace;
-            } else
-            {
+            } else {
                 position = PartPosition.BottomFace;
             }
         }

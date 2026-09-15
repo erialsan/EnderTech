@@ -13,11 +13,10 @@ import io.endertech.multiblock.MultiblockRegistry;
  * SERVER and WORLD ticks only run on the server.
  * WORLDLOAD ticks run only on the server, and only when worlds are loaded.
  */
-public class MultiblockServerTickHandler
-{
+public class MultiblockServerTickHandler {
+
     @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event)
-    {
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase == TickEvent.Phase.START) MultiblockRegistry.tickStart(event.world);
         else if (event.phase == TickEvent.Phase.END) MultiblockRegistry.tickEnd(event.world);
     }

@@ -1,33 +1,31 @@
 package io.endertech.integration.waila;
 
-import io.endertech.tile.TileET;
-import io.endertech.util.IETWailaProvider;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaDataProvider;
-import mcp.mobius.waila.api.IWailaRegistrar;
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-import java.util.List;
+import io.endertech.tile.TileET;
+import io.endertech.util.IETWailaProvider;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaDataProvider;
+import mcp.mobius.waila.api.IWailaRegistrar;
 
-public class GenericWailaProvider implements IWailaDataProvider
-{
-    public static void callbackRegister(IWailaRegistrar registrar)
-    {
+public class GenericWailaProvider implements IWailaDataProvider {
+
+    public static void callbackRegister(IWailaRegistrar registrar) {
         registrar.registerHeadProvider(new GenericWailaProvider(), TileET.class);
         registrar.registerBodyProvider(new GenericWailaProvider(), TileET.class);
     }
 
     @Override
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
         TileEntity tile = accessor.getTileEntity();
-        if (tile instanceof IETWailaProvider)
-        {
+        if (tile instanceof IETWailaProvider) {
             return ((IETWailaProvider) tile).getWailaStack();
         }
 
@@ -35,11 +33,10 @@ public class GenericWailaProvider implements IWailaDataProvider
     }
 
     @Override
-    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
         TileEntity tile = accessor.getTileEntity();
-        if (tile instanceof IETWailaProvider)
-        {
+        if (tile instanceof IETWailaProvider) {
             return ((IETWailaProvider) tile).getWailaHead(itemStack, currenttip);
         }
 
@@ -47,11 +44,10 @@ public class GenericWailaProvider implements IWailaDataProvider
     }
 
     @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
         TileEntity tile = accessor.getTileEntity();
-        if (tile instanceof IETWailaProvider)
-        {
+        if (tile instanceof IETWailaProvider) {
             return ((IETWailaProvider) tile).getWailaBody(itemStack, currenttip);
         }
 
@@ -59,11 +55,10 @@ public class GenericWailaProvider implements IWailaDataProvider
     }
 
     @Override
-    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
         TileEntity tile = accessor.getTileEntity();
-        if (tile instanceof IETWailaProvider)
-        {
+        if (tile instanceof IETWailaProvider) {
             return ((IETWailaProvider) tile).getWailaTail(itemStack, currenttip);
         }
 
@@ -71,7 +66,8 @@ public class GenericWailaProvider implements IWailaDataProvider
     }
 
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z) {
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x,
+        int y, int z) {
         return tag;
     }
 }

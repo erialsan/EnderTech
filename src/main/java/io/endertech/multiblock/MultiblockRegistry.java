@@ -1,9 +1,11 @@
 package io.endertech.multiblock;
 
+import java.util.HashMap;
+
+import net.minecraft.world.World;
+
 import io.endertech.util.helper.LocalisationHelper;
 import io.endertech.util.helper.LogHelper;
-import net.minecraft.world.World;
-import java.util.HashMap;
 
 /**
  * This is a very static singleton registry class which directs incoming events to sub-objects, which
@@ -11,8 +13,8 @@ import java.util.HashMap;
  *
  * @author Erogenous Beef
  */
-public class MultiblockRegistry
-{
+public class MultiblockRegistry {
+
     // World > WorldRegistry map
     private static HashMap<World, MultiblockWorldRegistry> registries = new HashMap<World, MultiblockWorldRegistry>();
 
@@ -21,10 +23,8 @@ public class MultiblockRegistry
      *
      * @param world The world being ticked
      */
-    public static void tickStart(World world)
-    {
-        if (registries.containsKey(world))
-        {
+    public static void tickStart(World world) {
+        if (registries.containsKey(world)) {
             MultiblockWorldRegistry registry = registries.get(world);
             registry.tickStart();
         }
@@ -35,10 +35,8 @@ public class MultiblockRegistry
      *
      * @param world The world being ticked
      */
-    public static void tickEnd(World world)
-    {
-        if (registries.containsKey(world))
-        {
+    public static void tickEnd(World world) {
+        if (registries.containsKey(world)) {
             MultiblockWorldRegistry registry = registries.get(world);
             registry.tickEnd();
         }
@@ -47,19 +45,17 @@ public class MultiblockRegistry
     /**
      * Called when the world has finished loading a chunk.
      */
-    public static void onChunkLoaded(World world, int chunkX, int chunkZ)
-    {
-        if (registries.containsKey(world))
-        {
-            registries.get(world).onChunkLoaded(chunkX, chunkZ);
+    public static void onChunkLoaded(World world, int chunkX, int chunkZ) {
+        if (registries.containsKey(world)) {
+            registries.get(world)
+                .onChunkLoaded(chunkX, chunkZ);
         }
     }
 
     /**
      * Register a new part in the system. The part has been created either through user action or via a chunk loading.
      */
-    public static void onPartAdded(World world, IMultiblockPart part)
-    {
+    public static void onPartAdded(World world, IMultiblockPart part) {
         MultiblockWorldRegistry registry = getOrCreateRegistry(world);
         registry.onPartAdded(part);
     }
@@ -67,24 +63,21 @@ public class MultiblockRegistry
     /**
      * Call to remove a part from world lists.
      */
-    public static void onPartRemovedFromWorld(World world, IMultiblockPart part)
-    {
-        if (registries.containsKey(world))
-        {
-            registries.get(world).onPartRemovedFromWorld(part);
+    public static void onPartRemovedFromWorld(World world, IMultiblockPart part) {
+        if (registries.containsKey(world)) {
+            registries.get(world)
+                .onPartRemovedFromWorld(part);
         }
 
     }
 
-
     /**
      * Called whenever a world is unloaded. Unload the relevant registry, if we have one.
      */
-    public static void onWorldUnloaded(World world)
-    {
-        if (registries.containsKey(world))
-        {
-            registries.get(world).onWorldUnloaded();
+    public static void onWorldUnloaded(World world) {
+        if (registries.containsKey(world)) {
+            registries.get(world)
+                .onWorldUnloaded();
             registries.remove(world);
         }
     }
@@ -96,14 +89,13 @@ public class MultiblockRegistry
      * @param world      The world containing the multiblock
      * @param controller The dirty controller
      */
-    public static void addDirtyController(World world, MultiblockControllerBase controller)
-    {
-        if (registries.containsKey(world))
-        {
-            registries.get(world).addDirtyController(controller);
-        } else
-        {
-            throw new IllegalArgumentException("Adding a dirty controller to a world that has no registered controllers!");
+    public static void addDirtyController(World world, MultiblockControllerBase controller) {
+        if (registries.containsKey(world)) {
+            registries.get(world)
+                .addDirtyController(controller);
+        } else {
+            throw new IllegalArgumentException(
+                "Adding a dirty controller to a world that has no registered controllers!");
         }
     }
 
@@ -114,26 +106,25 @@ public class MultiblockRegistry
      * @param world      The world formerly containing the multiblock
      * @param controller The dead controller
      */
-    public static void addDeadController(World world, MultiblockControllerBase controller)
-    {
-        if (registries.containsKey(world))
-        {
-            registries.get(world).addDeadController(controller);
-        } else
-        {
-            LogHelper.warn(LocalisationHelper.localiseString("warning.multiblock.controller.dead_but_world_not_tracked", controller.hashCode(), world));
+    public static void addDeadController(World world, MultiblockControllerBase controller) {
+        if (registries.containsKey(world)) {
+            registries.get(world)
+                .addDeadController(controller);
+        } else {
+            LogHelper.warn(
+                LocalisationHelper.localiseString(
+                    "warning.multiblock.controller.dead_but_world_not_tracked",
+                    controller.hashCode(),
+                    world));
         }
     }
 
     /// *** PRIVATE HELPERS *** ///
 
-    private static MultiblockWorldRegistry getOrCreateRegistry(World world)
-    {
-        if (registries.containsKey(world))
-        {
+    private static MultiblockWorldRegistry getOrCreateRegistry(World world) {
+        if (registries.containsKey(world)) {
             return registries.get(world);
-        } else
-        {
+        } else {
             MultiblockWorldRegistry newRegistry = new MultiblockWorldRegistry(world);
             registries.put(world, newRegistry);
             return newRegistry;

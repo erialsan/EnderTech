@@ -1,10 +1,7 @@
 package io.endertech.block;
 
-import cofh.lib.util.helpers.ServerHelper;
-import io.endertech.EnderTech;
-import io.endertech.tile.TileET;
-import io.endertech.tile.TileInventory;
-import io.endertech.util.helper.WorldHelper;
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -15,23 +12,26 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import java.util.ArrayList;
 
-public class BlockET extends Block
-{
-    public BlockET()
-    {
+import cofh.lib.util.helpers.ServerHelper;
+import io.endertech.EnderTech;
+import io.endertech.tile.TileET;
+import io.endertech.tile.TileInventory;
+import io.endertech.util.helper.WorldHelper;
+
+public class BlockET extends Block {
+
+    public BlockET() {
         this(Material.iron);
     }
 
-    public BlockET(Material material)
-    {
+    public BlockET(Material material) {
         super(material);
         this.setCreativeTab(EnderTech.tabET);
     }
 
-    public static ArrayList<ItemStack> dismantleBlockInWorld(EntityPlayer player, World world, int x, int y, int z, boolean returnDrops)
-    {
+    public static ArrayList<ItemStack> dismantleBlockInWorld(EntityPlayer player, World world, int x, int y, int z,
+        boolean returnDrops) {
         Block block = world.getBlock(x, y, z);
         int meta = world.getBlockMetadata(x, y, z);
 
@@ -40,24 +40,20 @@ public class BlockET extends Block
         drops.add(drop);
 
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof TileInventory)
-        {
+        if (tile instanceof TileInventory) {
             TileInventory tileInventory = (TileInventory) tile;
 
-            for (ItemStack itemStack : tileInventory.inventory)
-            {
+            for (ItemStack itemStack : tileInventory.inventory) {
                 if (itemStack != null) drops.add(itemStack);
             }
 
             tileInventory.inventory = new ItemStack[tileInventory.inventory.length];
         }
 
-        if (tile instanceof TileET)
-        {
+        if (tile instanceof TileET) {
             TileET tileET = (TileET) tile;
 
-            if (tileET.hasItemState())
-            {
+            if (tileET.hasItemState()) {
                 drop.setTagCompound(new NBTTagCompound());
                 tileET.writeStateToNBT(drop.stackTagCompound);
             }
@@ -65,10 +61,8 @@ public class BlockET extends Block
 
         world.setBlockToAir(x, y, z);
 
-        if (!returnDrops)
-        {
-            for (ItemStack itemStack : drops)
-            {
+        if (!returnDrops) {
+            for (ItemStack itemStack : drops) {
                 WorldHelper.spawnItemInWorldWithRandomness(itemStack, world, 0.3F, x, y, z, 2);
             }
         }
@@ -77,24 +71,18 @@ public class BlockET extends Block
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack)
-    {
-        if (world.getTileEntity(x, y, z) instanceof TileET)
-        {
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack) {
+        if (world.getTileEntity(x, y, z) instanceof TileET) {
             int direction = 0;
             int facing = MathHelper.floor_double(entityLiving.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 
-            if (facing == 0)
-            {
+            if (facing == 0) {
                 direction = ForgeDirection.NORTH.ordinal();
-            } else if (facing == 1)
-            {
+            } else if (facing == 1) {
                 direction = ForgeDirection.EAST.ordinal();
-            } else if (facing == 2)
-            {
+            } else if (facing == 2) {
                 direction = ForgeDirection.SOUTH.ordinal();
-            } else if (facing == 3)
-            {
+            } else if (facing == 3) {
                 direction = ForgeDirection.WEST.ordinal();
             }
 
@@ -103,15 +91,13 @@ public class BlockET extends Block
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float fx, float fy, float fz)
-    {
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float fx, float fy,
+        float fz) {
         TileET tileET = (TileET) world.getTileEntity(x, y, z);
         if (tileET == null) return false;
 
-        if (tileET.hasGui())
-        {
-            if (ServerHelper.isServerWorld(world))
-            {
+        if (tileET.hasGui()) {
+            if (ServerHelper.isServerWorld(world)) {
                 tileET.openGui(player);
             }
 

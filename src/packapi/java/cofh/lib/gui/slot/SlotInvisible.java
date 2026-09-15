@@ -1,12 +1,12 @@
 package cofh.lib.gui.slot;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Slot that will redirect inserts to another inventory slot (other than index), but not be visible.
@@ -15,44 +15,44 @@ import net.minecraft.item.ItemStack;
  */
 public class SlotInvisible extends Slot {
 
-	protected final int slotIndex;
+    protected final int slotIndex;
 
-	public SlotInvisible(IInventory inventory, int index, int x, int y, int slot) {
+    public SlotInvisible(IInventory inventory, int index, int x, int y, int slot) {
 
-		super(inventory, index, x, y);
-		slotIndex = slot;
-	}
+        super(inventory, index, x, y);
+        slotIndex = slot;
+    }
 
-	@Override
-	public void putStack(ItemStack stack) {
+    @Override
+    public void putStack(ItemStack stack) {
 
-		this.inventory.setInventorySlotContents(slotIndex, stack);
-		this.onSlotChanged();
-	}
+        this.inventory.setInventorySlotContents(slotIndex, stack);
+        this.onSlotChanged();
+    }
 
-	@Override
-	public ItemStack getStack() {
+    @Override
+    public ItemStack getStack() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public ItemStack decrStackSize(int par1) {
+    @Override
+    public ItemStack decrStackSize(int par1) {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public boolean canTakeStack(EntityPlayer p) {
+    @Override
+    public boolean canTakeStack(EntityPlayer p) {
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean func_111238_b() {
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean func_111238_b() {
 
-		return false;
-	}
+        return false;
+    }
 
 }

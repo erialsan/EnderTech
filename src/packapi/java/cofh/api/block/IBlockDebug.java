@@ -12,22 +12,22 @@ import net.minecraftforge.common.util.ForgeDirection;
  */
 public interface IBlockDebug {
 
-	/**
-	 * This function debugs a block.
-	 *
-	 * @param world
-	 *            Reference to the world.
-	 * @param x
-	 *            X coordinate of the block.
-	 * @param y
-	 *            Y coordinate of the block.
-	 * @param z
-	 *            Z coordinate of the block.
-	 * @param side
-	 *            The side of the block.
-	 * @param player
-	 *            Player doing the debugging.
-	 */
-	void debugBlock(IBlockAccess world, int x, int y, int z, ForgeDirection side, EntityPlayer player);
+    /**
+     * This function debugs a block.
+     *
+     * @param world
+     *               Reference to the world.
+     * @param x
+     *               X coordinate of the block.
+     * @param y
+     *               Y coordinate of the block.
+     * @param z
+     *               Z coordinate of the block.
+     * @param side
+     *               The side of the block.
+     * @param player
+     *               Player doing the debugging.
+     */
+    void debugBlock(IBlockAccess world, int x, int y, int z, ForgeDirection side, EntityPlayer player);
 
 }

@@ -1,5 +1,18 @@
 package io.endertech.tile;
 
+import java.util.*;
+
+import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import cofh.api.energy.IEnergyContainerItem;
 import cofh.lib.util.helpers.ServerHelper;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -13,70 +26,50 @@ import io.endertech.network.PacketETBase;
 import io.endertech.reference.Strings;
 import io.endertech.util.helper.LocalisationHelper;
 import io.endertech.util.helper.StringHelper;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.common.util.ForgeDirection;
-import java.util.*;
 
-public class TileChargePad extends TilePad
-{
-    public static final int[] RECEIVE = {0, 1 * 2000, 10 * 2000};
-    public static final int[] SEND = {10 * 1000000, 1 * 2000, 10 * 2000};
-    public static final int[] CAPACITY = {-1, 1 * 2000000, 10 * 1000000};
+public class TileChargePad extends TilePad {
+
+    public static final int[] RECEIVE = { 0, 1 * 2000, 10 * 2000 };
+    public static final int[] SEND = { 10 * 1000000, 1 * 2000, 10 * 2000 };
+    public static final int[] CAPACITY = { -1, 1 * 2000000, 10 * 1000000 };
 
     public int sentPower = 0;
 
-    public TileChargePad()
-    {
+    public TileChargePad() {
         super();
 
         this.tileName = "Charge Pad";
     }
 
-    public static void init()
-    {
+    public static void init() {
         GameRegistry.registerTileEntity(TileChargePad.class, "tile." + Strings.Blocks.CHARGE_PAD);
     }
 
-    public int getMaxEnergyStored(int meta)
-    {
+    public int getMaxEnergyStored(int meta) {
         return CAPACITY[meta];
     }
 
-    public int getMaxReceiveRate(int meta)
-    {
+    public int getMaxReceiveRate(int meta) {
         return RECEIVE[meta];
     }
 
-    public int getMaxSendRate(int meta)
-    {
+    public int getMaxSendRate(int meta) {
         return SEND[meta];
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Charge Pad: position " + this.xCoord + ", " + this.yCoord + ", " + this.zCoord;
     }
 
-    public Set<ItemStack> chargeableItemsInInventory(ItemStack[] itemStacks)
-    {
+    public Set<ItemStack> chargeableItemsInInventory(ItemStack[] itemStacks) {
         Set<ItemStack> itemsToCharge = new HashSet<ItemStack>();
 
-        for (ItemStack itemStack : itemStacks)
-        {
+        for (ItemStack itemStack : itemStacks) {
             if (itemStack == null) continue;
 
             Item item = itemStack.getItem();
-            if (item instanceof IEnergyContainerItem)
-            {
+            if (item instanceof IEnergyContainerItem) {
                 IEnergyContainerItem chargeableItem = (IEnergyContainerItem) item;
                 if (chargeableItem.receiveEnergy(itemStack, 1, true) == 1) itemsToCharge.add(itemStack);
             }
@@ -85,18 +78,15 @@ public class TileChargePad extends TilePad
         return itemsToCharge;
     }
 
-    public List<Entity> getChargeableEntitiesInAABB(AxisAlignedBB aabb)
-    {
-        List<Entity> chargeableEntitiesInRange = this.worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+    public List<Entity> getChargeableEntitiesInAABB(AxisAlignedBB aabb) {
+        List<Entity> chargeableEntitiesInRange = new ArrayList<Entity>(
+            this.worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb));
         List<EntityItem> chargeableItemsInRange = this.worldObj.getEntitiesWithinAABB(EntityItem.class, aabb);
-        for (EntityItem entityItem : chargeableItemsInRange)
-        {
+        for (EntityItem entityItem : chargeableItemsInRange) {
             ItemStack itemStack = entityItem.getEntityItem();
-            if (itemStack != null)
-            {
+            if (itemStack != null) {
                 Item item = itemStack.getItem();
-                if (item != null)
-                {
+                if (item != null) {
                     if (item instanceof IEnergyContainerItem) chargeableEntitiesInRange.add(entityItem);
                 }
             }
@@ -105,17 +95,14 @@ public class TileChargePad extends TilePad
         return chargeableEntitiesInRange;
     }
 
-    public List<ItemStack> getItemsToChargeFromEntity(Entity entity)
-    {
+    public List<ItemStack> getItemsToChargeFromEntity(Entity entity) {
         LinkedList<ItemStack> itemsToCharge = new LinkedList<ItemStack>();
 
-        if (entity instanceof EntityPlayer)
-        {
+        if (entity instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) entity;
             itemsToCharge.addAll(this.chargeableItemsInInventory(player.inventory.mainInventory));
             itemsToCharge.addAll(this.chargeableItemsInInventory(player.inventory.armorInventory));
-        } else if (entity instanceof EntityItem)
-        {
+        } else if (entity instanceof EntityItem) {
             EntityItem entityItem = (EntityItem) entity;
             ItemStack item = entityItem.getEntityItem();
 
@@ -125,28 +112,24 @@ public class TileChargePad extends TilePad
         return itemsToCharge;
     }
 
-    public int chargeItemsGivenEntity(Entity entity, int maxCharge, int meta)
-    {
+    public int chargeItemsGivenEntity(Entity entity, int maxCharge, int meta) {
         List<ItemStack> itemsToCharge = this.getItemsToChargeFromEntity(entity);
         double efficiency = this.calculateEfficiencyForEntity(entity);
 
         int totalSent = 0;
         int itemCount = itemsToCharge.size();
-        if (itemCount > 0)
-        {
+        if (itemCount > 0) {
             int chargePerItem = (int) Math.floor(maxCharge / itemCount);
             if (chargePerItem == 0 && maxCharge > 0) chargePerItem = 1;
 
-            for (ItemStack itemStack : itemsToCharge)
-            {
+            for (ItemStack itemStack : itemsToCharge) {
                 IEnergyContainerItem chargeableItem = (IEnergyContainerItem) itemStack.getItem();
                 int couldReceive = chargeableItem.receiveEnergy(itemStack, chargePerItem, true);
                 int toSend = this.extractEnergy(couldReceive, meta, false);
                 if (this.isCreative) toSend = couldReceive;
 
                 int sent = chargeableItem.receiveEnergy(itemStack, (int) (toSend * efficiency), false);
-                if (sent > 0 && entity instanceof EntityItem)
-                {
+                if (sent > 0 && entity instanceof EntityItem) {
                     EntityItem entityItem = (EntityItem) entity;
                     if (entityItem.lifespan < Integer.MAX_VALUE) entityItem.lifespan = Integer.MAX_VALUE;
                 }
@@ -161,13 +144,11 @@ public class TileChargePad extends TilePad
     }
 
     @Override
-    public void updateEntity()
-    {
+    public void updateEntity() {
         int meta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
         this.isCreative = (meta == 0);
 
-        if (ServerHelper.isServerWorld(this.worldObj))
-        {
+        if (ServerHelper.isServerWorld(this.worldObj)) {
             boolean oldActive = this.isActive;
             this.isActive = this.sentPower > 0;
 
@@ -175,16 +156,13 @@ public class TileChargePad extends TilePad
             int totalChargeSendable = this.extractEnergy(getMaxSendRate(meta), meta, true);
             if (this.isCreative) totalChargeSendable = SEND[0];
 
-            if (totalChargeSendable > 0)
-            {
+            if (totalChargeSendable > 0) {
                 AxisAlignedBB front = this.getAABBInFront(2);
                 List<Entity> ownersInRange = this.getChargeableEntitiesInAABB(front);
 
                 int totalChargeForEntity = (int) (((double) totalChargeSendable) / ownersInRange.size());
-                if (ownersInRange.size() > 0)
-                {
-                    for (Entity entity : ownersInRange)
-                    {
+                if (ownersInRange.size() > 0) {
+                    for (Entity entity : ownersInRange) {
                         int powerSentToEntity = this.chargeItemsGivenEntity(entity, totalChargeForEntity, meta);
                         sentPower += powerSentToEntity;
                     }
@@ -196,8 +174,7 @@ public class TileChargePad extends TilePad
             boolean shouldSendUpdate = false;
             shouldSendUpdate = shouldSendUpdate || (this.isActive != oldActive);
 
-            if (this.ticksSinceLastUpdate == TICKS_PER_UPDATE)
-            {
+            if (this.ticksSinceLastUpdate == TICKS_PER_UPDATE) {
                 this.ticksSinceLastUpdate = 0;
                 shouldSendUpdate = true;
             }
@@ -212,8 +189,7 @@ public class TileChargePad extends TilePad
     }
 
     @Override
-    public PacketETBase getPacket()
-    {
+    public PacketETBase getPacket() {
         PacketETBase packet = super.getPacket();
         packet.addInt(this.sentPower);
 
@@ -221,48 +197,49 @@ public class TileChargePad extends TilePad
     }
 
     @Override
-    public void handleTilePacket(PacketETBase tilePacket, boolean isServer)
-    {
+    public void handleTilePacket(PacketETBase tilePacket, boolean isServer) {
         super.handleTilePacket(tilePacket, isServer);
 
         int sentPower = tilePacket.getInt();
 
-        if (!isServer)
-        {
+        if (!isServer) {
             this.sentPower = sentPower;
         }
     }
 
     @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip)
-    {
-        if (this.isActive)
-        {
-            currenttip.add(EnumChatFormatting.GREEN + LocalisationHelper.localiseString("info.active") + EnumChatFormatting.RESET);
-        } else
-        {
-            currenttip.add(EnumChatFormatting.RED + LocalisationHelper.localiseString("info.inactive") + EnumChatFormatting.RESET);
+    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip) {
+        if (this.isActive) {
+            currenttip.add(
+                EnumChatFormatting.GREEN + LocalisationHelper.localiseString("info.active") + EnumChatFormatting.RESET);
+        } else {
+            currenttip.add(
+                EnumChatFormatting.RED + LocalisationHelper.localiseString("info.inactive") + EnumChatFormatting.RESET);
         }
 
         int blockMeta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
         if (this.isCreative) currenttip.add(LocalisationHelper.localiseString("info.charge", "Infinite"));
-        else
-            currenttip.add(LocalisationHelper.localiseString("info.charge", StringHelper.getEnergyString(this.storedEnergy) + " / " + StringHelper.getEnergyString(this.getMaxEnergyStored(blockMeta)) + " RF"));
+        else currenttip.add(
+            LocalisationHelper.localiseString(
+                "info.charge",
+                StringHelper.getEnergyString(this.storedEnergy) + " / "
+                    + StringHelper.getEnergyString(this.getMaxEnergyStored(blockMeta))
+                    + " RF"));
 
-        currenttip.add(LocalisationHelper.localiseString("info.sent", StringHelper.getEnergyString(this.sentPower) + " RF/t"));
+        currenttip.add(
+            LocalisationHelper.localiseString("info.sent", StringHelper.getEnergyString(this.sentPower) + " RF/t"));
 
         return currenttip;
     }
 
     @SideOnly(Side.CLIENT)
-    public void spawnParticles(int meta)
-    {
-        EffectRenderer er = FMLClientHandler.instance().getClient().effectRenderer;
+    public void spawnParticles(int meta) {
+        EffectRenderer er = FMLClientHandler.instance()
+            .getClient().effectRenderer;
         ForgeDirection orientation = this.getOrientation();
         Random rand = this.worldObj.rand;
 
-        for (int particle = this.getParticleCount(meta); particle > 0; particle--)
-        {
+        for (int particle = this.getParticleCount(meta); particle > 0; particle--) {
             double xSign = (rand.nextBoolean() ? -1 : 1);
             double ySign = (rand.nextBoolean() ? -1 : 1);
             double zSign = (rand.nextBoolean() ? -1 : 1);
@@ -275,59 +252,61 @@ public class TileChargePad extends TilePad
             double y = this.yCoord + (0.5F * orientation.offsetY) + 0.5 + yAddition;
             double z = this.zCoord + (0.5F * orientation.offsetZ) + 0.5 + zAddition;
 
-            er.addEffect(new EntityChargePadFX(this.worldObj, x, y, z, getParticleMaxAge(), getParticleVelocity(), getParticleColour(rand), this.getParticleSizeModifier(meta)));
+            er.addEffect(
+                new EntityChargePadFX(
+                    this.worldObj,
+                    x,
+                    y,
+                    z,
+                    getParticleMaxAge(),
+                    getParticleVelocity(),
+                    getParticleColour(rand),
+                    this.getParticleSizeModifier(meta)));
         }
     }
 
     @SideOnly(Side.CLIENT)
-    public int getParticleMaxAge()
-    {
+    public int getParticleMaxAge() {
         return 16;
     }
 
     @SideOnly(Side.CLIENT)
-    public double[] getParticleVelocity()
-    {
+    public double[] getParticleVelocity() {
         ForgeDirection orientation = this.getOrientation();
-        return new double[] {orientation.offsetX * 0.15D, orientation.offsetY * 0.15D, orientation.offsetZ * 0.15D};
+        return new double[] { orientation.offsetX * 0.15D, orientation.offsetY * 0.15D, orientation.offsetZ * 0.15D };
     }
 
     @SideOnly(Side.CLIENT)
-    public float[] getParticleColour(Random rand)
-    {
+    public float[] getParticleColour(Random rand) {
         if (this.isItemInChargeSlotTuberous()) return getRainbowParticleColour(rand);
 
         float r = 1.0F;
         float g = 0F + (rand.nextFloat() * 0.25F);
         float b = 0F + (rand.nextFloat() * 0.25F);
-        return new float[] {r, g, b};
+        return new float[] { r, g, b };
     }
 
     @SideOnly(Side.CLIENT)
-    public int getParticleCount(int meta)
-    {
+    public int getParticleCount(int meta) {
         if (meta == 0) return 5;
         else if (meta == 2) return 2;
         else return 1;
     }
 
     @SideOnly(Side.CLIENT)
-    public float getParticleSizeModifier(int meta)
-    {
+    public float getParticleSizeModifier(int meta) {
         if (meta == 0) return 2.0F;
         else if (meta == 2) return 1.75F;
         else return 1.5F;
     }
 
     @Override
-    public Object getGuiClient(InventoryPlayer inventory)
-    {
+    public Object getGuiClient(InventoryPlayer inventory) {
         return new GuiChargePad(inventory, this);
     }
 
     @Override
-    public Object getGuiServer(InventoryPlayer inventory)
-    {
+    public Object getGuiServer(InventoryPlayer inventory) {
         return new ContainerChargePad(inventory, this);
     }
 }

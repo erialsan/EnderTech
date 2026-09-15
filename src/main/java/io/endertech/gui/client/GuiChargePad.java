@@ -1,22 +1,22 @@
 package io.endertech.gui.client;
 
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.util.ResourceLocation;
+
 import cofh.lib.gui.element.ElementEnergyStored;
 import io.endertech.gui.container.ContainerChargePad;
 import io.endertech.gui.element.ElementIcon;
 import io.endertech.tile.TileChargePad;
 import io.endertech.tile.TileET;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.ResourceLocation;
 
-public class GuiChargePad extends GuiETBase
-{
+public class GuiChargePad extends GuiETBase {
+
     public static final String TEXTURE_PATH = "endertech:textures/gui/ChargePad.png";
     public static final ResourceLocation TEXTURE = new ResourceLocation(TEXTURE_PATH);
     public TileChargePad tileChargePad;
     private ElementIcon elementChargingIcon;
 
-    public GuiChargePad(InventoryPlayer inventoryPlayer, TileET tileEntity)
-    {
+    public GuiChargePad(InventoryPlayer inventoryPlayer, TileET tileEntity) {
         super(new ContainerChargePad(inventoryPlayer, tileEntity), TEXTURE, tileEntity);
 
         this.tileChargePad = (TileChargePad) tileEntity;
@@ -24,8 +24,7 @@ public class GuiChargePad extends GuiETBase
     }
 
     @Override
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
 
         ElementEnergyStored elementEnergyStored = new ElementEnergyStored(this, 8, 8, this.tileChargePad);
@@ -36,8 +35,7 @@ public class GuiChargePad extends GuiETBase
     }
 
     @Override
-    protected void updateElementInformation()
-    {
+    protected void updateElementInformation() {
         elementChargingIcon.setIconToDraw(tileChargePad.getFrontIcon());
     }
 }

@@ -6,4 +6,3 @@
 package cofh.lib;
 
 import cpw.mods.fml.common.API;
-

@@ -8,5 +8,5 @@ package cofh.api.inventory;
  */
 public interface IInventoryRetainer {
 
-	// There's nothing else to go here at the moment. Potentially a conditional at a later date.
+    // There's nothing else to go here at the moment. Potentially a conditional at a later date.
 }

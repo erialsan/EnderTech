@@ -7,4 +7,3 @@ package cofh.api.block;
 
 import cofh.api.CoFHAPIProps;
 import cpw.mods.fml.common.API;
-

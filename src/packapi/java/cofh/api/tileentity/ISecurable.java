@@ -1,8 +1,8 @@
 package cofh.api.tileentity;
 
-import com.mojang.authlib.GameProfile;
-
 import net.minecraft.entity.player.EntityPlayer;
+
+import com.mojang.authlib.GameProfile;
 
 /**
  * Implement this interface on Tile Entities which can have access restrictions.
@@ -12,53 +12,56 @@ import net.minecraft.entity.player.EntityPlayer;
  */
 public interface ISecurable {
 
-	/**
-	 * Enum for Access Modes - Restricted is Friends Only, Private is Owner only.
-	 *
-	 * @author King Lemming
-	 *
-	 */
-	public static enum AccessMode {
-		PUBLIC, RESTRICTED, PRIVATE;
+    /**
+     * Enum for Access Modes - Restricted is Friends Only, Private is Owner only.
+     *
+     * @author King Lemming
+     *
+     */
+    public static enum AccessMode {
 
-		public boolean isPublic() {
+        PUBLIC,
+        RESTRICTED,
+        PRIVATE;
 
-			return this == PUBLIC;
-		}
+        public boolean isPublic() {
 
-		public boolean isRestricted() {
+            return this == PUBLIC;
+        }
 
-			return this == RESTRICTED;
-		}
+        public boolean isRestricted() {
 
-		public boolean isPrivate() {
+            return this == RESTRICTED;
+        }
 
-			return this == PRIVATE;
-		}
+        public boolean isPrivate() {
 
-		public static AccessMode stepForward(AccessMode curAccess) {
+            return this == PRIVATE;
+        }
 
-			return curAccess == PUBLIC ? RESTRICTED : curAccess == PRIVATE ? PUBLIC : PRIVATE;
-		}
+        public static AccessMode stepForward(AccessMode curAccess) {
 
-		public static AccessMode stepBackward(AccessMode curAccess) {
+            return curAccess == PUBLIC ? RESTRICTED : curAccess == PRIVATE ? PUBLIC : PRIVATE;
+        }
 
-			return curAccess == PUBLIC ? PRIVATE : curAccess == PRIVATE ? RESTRICTED : PUBLIC;
-		}
-	}
+        public static AccessMode stepBackward(AccessMode curAccess) {
 
-	boolean setAccess(AccessMode access);
+            return curAccess == PUBLIC ? PRIVATE : curAccess == PRIVATE ? RESTRICTED : PUBLIC;
+        }
+    }
 
-	boolean setOwnerName(String name);
+    boolean setAccess(AccessMode access);
 
-	boolean setOwner(GameProfile name);
+    boolean setOwnerName(String name);
 
-	AccessMode getAccess();
+    boolean setOwner(GameProfile name);
 
-	String getOwnerName();
+    AccessMode getAccess();
 
-	GameProfile getOwner();
+    String getOwnerName();
 
-	boolean canPlayerAccess(EntityPlayer player);
+    GameProfile getOwner();
+
+    boolean canPlayerAccess(EntityPlayer player);
 
 }

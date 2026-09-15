@@ -1,56 +1,49 @@
 package io.endertech.multiblock.tile;
 
+import net.minecraftforge.common.util.ForgeDirection;
+
 import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import io.endertech.multiblock.MultiblockControllerBase;
 import io.endertech.multiblock.MultiblockValidationException;
 import io.endertech.multiblock.controller.ControllerTank;
 import io.endertech.reference.Strings;
-import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileTankEnergyInput extends TileTankPart implements IEnergyHandler
-{
-    public static void init()
-    {
-        GameRegistry.registerTileEntity(TileTankEnergyInput.class, "tile.endertech." + Strings.Blocks.TANK_ENERGY_INPUT_NAME);
+public class TileTankEnergyInput extends TileTankPart implements IEnergyHandler {
+
+    public static void init() {
+        GameRegistry
+            .registerTileEntity(TileTankEnergyInput.class, "tile.endertech." + Strings.Blocks.TANK_ENERGY_INPUT_NAME);
     }
 
     @Override
-    public void isGoodForFrame() throws MultiblockValidationException
-    {
-
-    }
-
-    @Override
-    public void isGoodForSides() throws MultiblockValidationException
-    {
+    public void isGoodForFrame() throws MultiblockValidationException {
 
     }
 
     @Override
-    public void isGoodForTop() throws MultiblockValidationException
-    {
+    public void isGoodForSides() throws MultiblockValidationException {
 
     }
 
     @Override
-    public void isGoodForBottom() throws MultiblockValidationException
-    {
+    public void isGoodForTop() throws MultiblockValidationException {
 
     }
 
     @Override
-    public void isGoodForInterior() throws MultiblockValidationException
-    {
+    public void isGoodForBottom() throws MultiblockValidationException {
+
+    }
+
+    @Override
+    public void isGoodForInterior() throws MultiblockValidationException {
         throw new MultiblockValidationException("Tank energy inputs cannot be used for tank interior.");
     }
 
-
     @Override
-    public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
-    {
-        if (!canInteractFromDirection(from) || !isConnected())
-        {
+    public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
+        if (!canInteractFromDirection(from) || !isConnected()) {
             return 0;
         }
 
@@ -59,14 +52,12 @@ public class TileTankEnergyInput extends TileTankPart implements IEnergyHandler
     }
 
     @Override
-    public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate)
-    {
+    public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
         return 0;
     }
 
     @Override
-    public int getEnergyStored(ForgeDirection from)
-    {
+    public int getEnergyStored(ForgeDirection from) {
         if (!canInteractFromDirection(from) || !isConnected()) return 0;
 
         ControllerTank controller = this.getTankController();
@@ -74,30 +65,26 @@ public class TileTankEnergyInput extends TileTankPart implements IEnergyHandler
     }
 
     @Override
-    public int getMaxEnergyStored(ForgeDirection from)
-    {
+    public int getMaxEnergyStored(ForgeDirection from) {
         if (!canInteractFromDirection(from)) return 0;
 
         return ControllerTank.MAX_ENERGY_STORAGE;
     }
 
     @Override
-    public boolean canConnectEnergy(ForgeDirection from)
-    {
+    public boolean canConnectEnergy(ForgeDirection from) {
         return canInteractFromDirection(from);
     }
 
     @Override
-    public void onMachineAssembled(MultiblockControllerBase controller)
-    {
+    public void onMachineAssembled(MultiblockControllerBase controller) {
         super.onMachineAssembled(controller);
 
         updateOutwardNeighbours();
     }
 
     @Override
-    public void onMachineBroken()
-    {
+    public void onMachineBroken() {
         updateOutwardNeighbours();
 
         super.onMachineBroken();

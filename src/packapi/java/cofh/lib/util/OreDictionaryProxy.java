@@ -1,9 +1,9 @@
 package cofh.lib.util;
 
-import cofh.lib.util.helpers.ItemHelper;
-
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
+
+import cofh.lib.util.helpers.ItemHelper;
 
 /**
  * Don't instantiate this or call these methods in any way. Use the methods in {@link ItemHelper}.
@@ -14,47 +14,52 @@ import net.minecraftforge.oredict.OreDictionary;
 @SuppressWarnings("deprecation")
 public class OreDictionaryProxy {
 
-	public ItemStack getOre(String oreName) {
+    public ItemStack getOre(String oreName) {
 
-		if (OreDictionary.getOres(oreName).isEmpty()) {
-			return null;
-		}
-		return ItemHelper.cloneStack(OreDictionary.getOres(oreName).get(0), 1);
-	}
+        if (OreDictionary.getOres(oreName)
+            .isEmpty()) {
+            return null;
+        }
+        return ItemHelper.cloneStack(
+            OreDictionary.getOres(oreName)
+                .get(0),
+            1);
+    }
 
-	public int getOreID(ItemStack stack) {
+    public int getOreID(ItemStack stack) {
 
-		return OreDictionary.getOreID(stack);
-	}
+        return OreDictionary.getOreID(stack);
+    }
 
-	public int getOreID(String oreName) {
+    public int getOreID(String oreName) {
 
-		return OreDictionary.getOreID(oreName);
-	}
+        return OreDictionary.getOreID(oreName);
+    }
 
-	public String getOreName(ItemStack stack) {
+    public String getOreName(ItemStack stack) {
 
-		return OreDictionary.getOreName(OreDictionary.getOreID(stack));
-	}
+        return OreDictionary.getOreName(OreDictionary.getOreID(stack));
+    }
 
-	public String getOreName(int oreID) {
+    public String getOreName(int oreID) {
 
-		return OreDictionary.getOreName(oreID);
-	}
+        return OreDictionary.getOreName(oreID);
+    }
 
-	public boolean isOreIDEqual(ItemStack stack, int oreID) {
+    public boolean isOreIDEqual(ItemStack stack, int oreID) {
 
-		return OreDictionary.getOreID(stack) == oreID;
-	}
+        return OreDictionary.getOreID(stack) == oreID;
+    }
 
-	public boolean isOreNameEqual(ItemStack stack, String oreName) {
+    public boolean isOreNameEqual(ItemStack stack, String oreName) {
 
-		return OreDictionary.getOreName(OreDictionary.getOreID(stack)).equals(oreName);
-	}
+        return OreDictionary.getOreName(OreDictionary.getOreID(stack))
+            .equals(oreName);
+    }
 
-	public boolean oreNameExists(String oreName) {
+    public boolean oreNameExists(String oreName) {
 
-		return OreDictionary.doesOreNameExist(oreName);
-	}
+        return OreDictionary.doesOreNameExist(oreName);
+    }
 
 }

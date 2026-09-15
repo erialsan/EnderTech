@@ -2,13 +2,6 @@ package cofh.lib.util.helpers;
 
 import static net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE;
 
-import cofh.api.item.IEmpowerableItem;
-import cofh.api.item.IInventoryContainerItem;
-import cofh.api.item.IMultiModeItem;
-import cofh.lib.util.OreDictionaryProxy;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.registry.GameRegistry;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +23,13 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
+import cofh.api.item.IEmpowerableItem;
+import cofh.api.item.IInventoryContainerItem;
+import cofh.api.item.IMultiModeItem;
+import cofh.lib.util.OreDictionaryProxy;
+import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.registry.GameRegistry;
+
 /**
  * Contains various helper functions to assist with {@link Item} and {@link ItemStack} manipulation and interaction.
  *
@@ -38,1206 +38,1270 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
  */
 public final class ItemHelper {
 
-	public static final String BLOCK = "block";
-	public static final String ORE = "ore";
-	public static final String DUST = "dust";
-	public static final String INGOT = "ingot";
-	public static final String NUGGET = "nugget";
-	public static final String LOG = "log";
+    public static final String BLOCK = "block";
+    public static final String ORE = "ore";
+    public static final String DUST = "dust";
+    public static final String INGOT = "ingot";
+    public static final String NUGGET = "nugget";
+    public static final String LOG = "log";
 
-	public static OreDictionaryProxy oreProxy = new OreDictionaryProxy();
+    public static OreDictionaryProxy oreProxy = new OreDictionaryProxy();
 
-	private ItemHelper() {
+    private ItemHelper() {
 
-	}
+    }
 
-	public static ItemStack cloneStack(Item item, int stackSize) {
+    public static ItemStack cloneStack(Item item, int stackSize) {
 
-		if (item == null) {
-			return null;
-		}
-		ItemStack stack = new ItemStack(item, stackSize);
+        if (item == null) {
+            return null;
+        }
+        ItemStack stack = new ItemStack(item, stackSize);
 
-		return stack;
-	}
+        return stack;
+    }
 
-	public static ItemStack cloneStack(Block item, int stackSize) {
+    public static ItemStack cloneStack(Block item, int stackSize) {
 
-		if (item == null) {
-			return null;
-		}
-		ItemStack stack = new ItemStack(item, stackSize);
+        if (item == null) {
+            return null;
+        }
+        ItemStack stack = new ItemStack(item, stackSize);
 
-		return stack;
-	}
+        return stack;
+    }
 
-	public static ItemStack cloneStack(ItemStack stack, int stackSize) {
+    public static ItemStack cloneStack(ItemStack stack, int stackSize) {
 
-		if (stack == null) {
-			return null;
-		}
-		ItemStack retStack = stack.copy();
-		retStack.stackSize = stackSize;
+        if (stack == null) {
+            return null;
+        }
+        ItemStack retStack = stack.copy();
+        retStack.stackSize = stackSize;
 
-		return retStack;
-	}
+        return retStack;
+    }
 
-	public static ItemStack cloneStack(ItemStack stack) {
-
-		if (stack == null) {
-			return null;
-		}
-		ItemStack retStack = stack.copy();
+    public static ItemStack cloneStack(ItemStack stack) {
+
+        if (stack == null) {
+            return null;
+        }
+        ItemStack retStack = stack.copy();
+
+        return retStack;
+    }
+
+    public static ItemStack copyTag(ItemStack container, ItemStack other) {
 
-		return retStack;
-	}
+        if (other != null && other.stackTagCompound != null) {
+            container.stackTagCompound = (NBTTagCompound) other.stackTagCompound.copy();
+        }
+        return container;
+    }
+
+    public static NBTTagCompound setItemStackTagName(NBTTagCompound tag, String name) {
 
-	public static ItemStack copyTag(ItemStack container, ItemStack other) {
+        if (name == "") {
+            return null;
+        }
+        if (tag == null) {
+            tag = new NBTTagCompound();
+        }
+        if (!tag.hasKey("display")) {
+            tag.setTag("display", new NBTTagCompound());
+        }
+        tag.getCompoundTag("display")
+            .setString("Name", name);
+
+        return tag;
+    }
+
+    public static ItemStack readItemStackFromNBT(NBTTagCompound nbt) {
+
+        ItemStack stack = new ItemStack(Item.getItemById(nbt.getShort("id")));
+        stack.stackSize = nbt.getInteger("Count");
+        stack.setItemDamage(Math.max(0, nbt.getShort("Damage")));
+
+        if (nbt.hasKey("tag", 10)) {
+            stack.stackTagCompound = nbt.getCompoundTag("tag");
+        }
+        return stack;
+    }
+
+    public static NBTTagCompound writeItemStackToNBT(ItemStack stack, NBTTagCompound nbt) {
+
+        nbt.setShort("id", (short) Item.getIdFromItem(stack.getItem()));
+        nbt.setInteger("Count", stack.stackSize);
+        nbt.setShort("Damage", (short) getItemDamage(stack));
+
+        if (stack.stackTagCompound != null) {
+            nbt.setTag("tag", stack.stackTagCompound);
+        }
+        return nbt;
+    }
+
+    public static NBTTagCompound writeItemStackToNBT(ItemStack stack, int amount, NBTTagCompound nbt) {
+
+        nbt.setShort("id", (short) Item.getIdFromItem(stack.getItem()));
+        nbt.setInteger("Count", amount);
+        nbt.setShort("Damage", (short) getItemDamage(stack));
+
+        if (stack.stackTagCompound != null) {
+            nbt.setTag("tag", stack.stackTagCompound);
+        }
+        return nbt;
+    }
+
+    public static String getNameFromItemStack(ItemStack stack) {
+
+        if (stack == null || stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("display")) {
+            return "";
+        }
+        return stack.stackTagCompound.getCompoundTag("display")
+            .getString("Name");
+    }
+
+    public static ItemStack consumeItem(ItemStack stack) {
+
+        if (stack == null) {
+            return null;
+        }
+
+        Item item = stack.getItem();
+        boolean largerStack = stack.stackSize > 1;
+        // vanilla only alters the stack passed to hasContainerItem/etc. when the size is >1
+
+        if (largerStack) {
+            stack.stackSize -= 1;
+        }
+        if (item.hasContainerItem(stack)) {
+            ItemStack ret = item.getContainerItem(stack);
+
+            if (ret == null) {
+                return null;
+            }
+            if (ret.isItemStackDamageable() && ret.getItemDamage() > ret.getMaxDamage()) {
+                ret = null;
+            }
+            return ret;
+        }
+
+        return largerStack ? stack : null;
+    }
+
+    public static ItemStack consumeItem(ItemStack stack, EntityPlayer player) {
+
+        if (stack == null) {
+            return null;
+        }
+
+        Item item = stack.getItem();
+        boolean largerStack = stack.stackSize > 1;
+        // vanilla only alters the stack passed to hasContainerItem/etc. when the size is >1
+
+        if (largerStack) {
+            stack.stackSize -= 1;
+        }
+        if (item.hasContainerItem(stack)) {
+            ItemStack ret = item.getContainerItem(stack);
+
+            if (ret == null || (ret.isItemStackDamageable() && ret.getItemDamage() > ret.getMaxDamage())) {
+                ret = null;
+            }
+            if (stack.stackSize < 1) {
+                return ret;
+            }
+            if (ret != null && !player.inventory.addItemStackToInventory(ret)) {
+                player.func_146097_a(ret, false, true);
+            }
+        }
+
+        return largerStack ? stack : null;
+    }
+
+    public static boolean disposePlayerItem(ItemStack stack, ItemStack dropStack, EntityPlayer entityplayer,
+        boolean allowDrop) {
+
+        return disposePlayerItem(stack, dropStack, entityplayer, allowDrop, true);
+    }
+
+    public static boolean disposePlayerItem(ItemStack stack, ItemStack dropStack, EntityPlayer entityplayer,
+        boolean allowDrop, boolean allowReplace) {
+
+        if (entityplayer == null || entityplayer.capabilities.isCreativeMode) {
+            return true;
+        }
+        if (allowReplace && stack.stackSize <= 1) {
+            entityplayer.inventory.setInventorySlotContents(entityplayer.inventory.currentItem, null);
+            entityplayer.inventory.addItemStackToInventory(dropStack);
+            return true;
+        } else if (allowDrop) {
+            stack.stackSize -= 1;
+            if (dropStack != null && !entityplayer.inventory.addItemStackToInventory(dropStack)) {
+                entityplayer.func_146097_a(dropStack, false, true);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This prevents an overridden getDamage() call from messing up metadata acquisition.
+     */
+    public static int getItemDamage(ItemStack stack) {
+
+        return Items.diamond.getDamage(stack);
+    }
+
+    /**
+     * Gets a vanilla CraftingManager result.
+     */
+    public static ItemStack findMatchingRecipe(InventoryCrafting inv, World world) {
+
+        ItemStack[] dmgItems = new ItemStack[2];
+        for (int i = 0; i < inv.getSizeInventory(); i++) {
+            if (inv.getStackInSlot(i) != null) {
+                if (dmgItems[0] == null) {
+                    dmgItems[0] = inv.getStackInSlot(i);
+                } else {
+                    dmgItems[1] = inv.getStackInSlot(i);
+                    break;
+                }
+            }
+        }
+        if (dmgItems[0] == null || dmgItems[0].getItem() == null) {
+            return null;
+        } else if (dmgItems[1] != null && dmgItems[0].getItem() == dmgItems[1].getItem()
+            && dmgItems[0].stackSize == 1
+            && dmgItems[1].stackSize == 1
+            && dmgItems[0].getItem()
+                .isRepairable()) {
+                    Item theItem = dmgItems[0].getItem();
+                    int var13 = theItem.getMaxDamage() - dmgItems[0].getItemDamageForDisplay();
+                    int var8 = theItem.getMaxDamage() - dmgItems[1].getItemDamageForDisplay();
+                    int var9 = var13 + var8 + theItem.getMaxDamage() * 5 / 100;
+                    int var10 = Math.max(0, theItem.getMaxDamage() - var9);
+
+                    return new ItemStack(dmgItems[0].getItem(), 1, var10);
+                } else {
+                    IRecipe recipe;
+                    for (int i = 0; i < CraftingManager.getInstance()
+                        .getRecipeList()
+                        .size(); i++) {
+                        recipe = (IRecipe) CraftingManager.getInstance()
+                            .getRecipeList()
+                            .get(i);
+
+                        if (recipe.matches(inv, world)) {
+                            return recipe.getCraftingResult(inv);
+                        }
+                    }
+                    return null;
+                }
+    }
 
-		if (other != null && other.stackTagCompound != null) {
-			container.stackTagCompound = (NBTTagCompound) other.stackTagCompound.copy();
-		}
-		return container;
-	}
+    /* ORE DICTIONARY FUNCTIONS */
+    public static ItemStack getOre(String oreName) {
 
-	public static NBTTagCompound setItemStackTagName(NBTTagCompound tag, String name) {
+        return oreProxy.getOre(oreName);
+    }
 
-		if (name == "") {
-			return null;
-		}
-		if (tag == null) {
-			tag = new NBTTagCompound();
-		}
-		if (!tag.hasKey("display")) {
-			tag.setTag("display", new NBTTagCompound());
-		}
-		tag.getCompoundTag("display").setString("Name", name);
-
-		return tag;
-	}
-
-	public static ItemStack readItemStackFromNBT(NBTTagCompound nbt) {
-
-		ItemStack stack = new ItemStack(Item.getItemById(nbt.getShort("id")));
-		stack.stackSize = nbt.getInteger("Count");
-		stack.setItemDamage(Math.max(0, nbt.getShort("Damage")));
-
-		if (nbt.hasKey("tag", 10)) {
-			stack.stackTagCompound = nbt.getCompoundTag("tag");
-		}
-		return stack;
-	}
-
-	public static NBTTagCompound writeItemStackToNBT(ItemStack stack, NBTTagCompound nbt) {
-
-		nbt.setShort("id", (short) Item.getIdFromItem(stack.getItem()));
-		nbt.setInteger("Count", stack.stackSize);
-		nbt.setShort("Damage", (short) getItemDamage(stack));
-
-		if (stack.stackTagCompound != null) {
-			nbt.setTag("tag", stack.stackTagCompound);
-		}
-		return nbt;
-	}
-
-	public static NBTTagCompound writeItemStackToNBT(ItemStack stack, int amount, NBTTagCompound nbt) {
-
-		nbt.setShort("id", (short) Item.getIdFromItem(stack.getItem()));
-		nbt.setInteger("Count", amount);
-		nbt.setShort("Damage", (short) getItemDamage(stack));
-
-		if (stack.stackTagCompound != null) {
-			nbt.setTag("tag", stack.stackTagCompound);
-		}
-		return nbt;
-	}
-
-	public static String getNameFromItemStack(ItemStack stack) {
-
-		if (stack == null || stack.stackTagCompound == null || !stack.stackTagCompound.hasKey("display")) {
-			return "";
-		}
-		return stack.stackTagCompound.getCompoundTag("display").getString("Name");
-	}
-
-	public static ItemStack consumeItem(ItemStack stack) {
-
-		if (stack == null) {
-			return null;
-		}
-
-		Item item = stack.getItem();
-		boolean largerStack = stack.stackSize > 1;
-		// vanilla only alters the stack passed to hasContainerItem/etc. when the size is >1
-
-		if (largerStack) {
-			stack.stackSize -= 1;
-		}
-		if (item.hasContainerItem(stack)) {
-			ItemStack ret = item.getContainerItem(stack);
-
-			if (ret == null) {
-				return null;
-			}
-			if (ret.isItemStackDamageable() && ret.getItemDamage() > ret.getMaxDamage()) {
-				ret = null;
-			}
-			return ret;
-		}
-
-		return largerStack ? stack : null;
-	}
-
-	public static ItemStack consumeItem(ItemStack stack, EntityPlayer player) {
-
-		if (stack == null) {
-			return null;
-		}
-
-		Item item = stack.getItem();
-		boolean largerStack = stack.stackSize > 1;
-		// vanilla only alters the stack passed to hasContainerItem/etc. when the size is >1
-
-		if (largerStack) {
-			stack.stackSize -= 1;
-		}
-		if (item.hasContainerItem(stack)) {
-			ItemStack ret = item.getContainerItem(stack);
-
-			if (ret == null || (ret.isItemStackDamageable() && ret.getItemDamage() > ret.getMaxDamage())) {
-				ret = null;
-			}
-			if (stack.stackSize < 1) {
-				return ret;
-			}
-			if (ret != null && !player.inventory.addItemStackToInventory(ret)) {
-				player.func_146097_a(ret, false, true);
-			}
-		}
-
-		return largerStack ? stack : null;
-	}
-
-	public static boolean disposePlayerItem(ItemStack stack, ItemStack dropStack, EntityPlayer entityplayer, boolean allowDrop) {
-
-		return disposePlayerItem(stack, dropStack, entityplayer, allowDrop, true);
-	}
-
-	public static boolean disposePlayerItem(ItemStack stack, ItemStack dropStack, EntityPlayer entityplayer, boolean allowDrop, boolean allowReplace) {
-
-		if (entityplayer == null || entityplayer.capabilities.isCreativeMode) {
-			return true;
-		}
-		if (allowReplace && stack.stackSize <= 1) {
-			entityplayer.inventory.setInventorySlotContents(entityplayer.inventory.currentItem, null);
-			entityplayer.inventory.addItemStackToInventory(dropStack);
-			return true;
-		} else if (allowDrop) {
-			stack.stackSize -= 1;
-			if (dropStack != null && !entityplayer.inventory.addItemStackToInventory(dropStack)) {
-				entityplayer.func_146097_a(dropStack, false, true);
-			}
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * This prevents an overridden getDamage() call from messing up metadata acquisition.
-	 */
-	public static int getItemDamage(ItemStack stack) {
-
-		return Items.diamond.getDamage(stack);
-	}
-
-	/**
-	 * Gets a vanilla CraftingManager result.
-	 */
-	public static ItemStack findMatchingRecipe(InventoryCrafting inv, World world) {
-
-		ItemStack[] dmgItems = new ItemStack[2];
-		for (int i = 0; i < inv.getSizeInventory(); i++) {
-			if (inv.getStackInSlot(i) != null) {
-				if (dmgItems[0] == null) {
-					dmgItems[0] = inv.getStackInSlot(i);
-				} else {
-					dmgItems[1] = inv.getStackInSlot(i);
-					break;
-				}
-			}
-		}
-		if (dmgItems[0] == null || dmgItems[0].getItem() == null) {
-			return null;
-		} else if (dmgItems[1] != null && dmgItems[0].getItem() == dmgItems[1].getItem() && dmgItems[0].stackSize == 1 && dmgItems[1].stackSize == 1
-				&& dmgItems[0].getItem().isRepairable()) {
-			Item theItem = dmgItems[0].getItem();
-			int var13 = theItem.getMaxDamage() - dmgItems[0].getItemDamageForDisplay();
-			int var8 = theItem.getMaxDamage() - dmgItems[1].getItemDamageForDisplay();
-			int var9 = var13 + var8 + theItem.getMaxDamage() * 5 / 100;
-			int var10 = Math.max(0, theItem.getMaxDamage() - var9);
+    public static String getOreName(ItemStack stack) {
 
-			return new ItemStack(dmgItems[0].getItem(), 1, var10);
-		} else {
-			IRecipe recipe;
-			for (int i = 0; i < CraftingManager.getInstance().getRecipeList().size(); i++) {
-				recipe = (IRecipe) CraftingManager.getInstance().getRecipeList().get(i);
+        return oreProxy.getOreName(stack);
+    }
 
-				if (recipe.matches(inv, world)) {
-					return recipe.getCraftingResult(inv);
-				}
-			}
-			return null;
-		}
-	}
+    public static boolean isOreIDEqual(ItemStack stack, int oreID) {
 
-	/* ORE DICTIONARY FUNCTIONS */
-	public static ItemStack getOre(String oreName) {
+        return oreProxy.isOreIDEqual(stack, oreID);
+    }
 
-		return oreProxy.getOre(oreName);
-	}
+    public static boolean isOreNameEqual(ItemStack stack, String oreName) {
 
-	public static String getOreName(ItemStack stack) {
+        return oreProxy.isOreNameEqual(stack, oreName);
+    }
 
-		return oreProxy.getOreName(stack);
-	}
+    public static boolean oreNameExists(String oreName) {
 
-	public static boolean isOreIDEqual(ItemStack stack, int oreID) {
+        return oreProxy.oreNameExists(oreName);
+    }
 
-		return oreProxy.isOreIDEqual(stack, oreID);
-	}
+    public static boolean hasOreName(ItemStack stack) {
 
-	public static boolean isOreNameEqual(ItemStack stack, String oreName) {
+        return !getOreName(stack).equals("Unknown");
+    }
 
-		return oreProxy.isOreNameEqual(stack, oreName);
-	}
+    public static boolean isBlock(ItemStack stack) {
 
-	public static boolean oreNameExists(String oreName) {
+        return getOreName(stack).startsWith(BLOCK);
+    }
 
-		return oreProxy.oreNameExists(oreName);
-	}
+    public static boolean isOre(ItemStack stack) {
 
-	public static boolean hasOreName(ItemStack stack) {
+        return getOreName(stack).startsWith(ORE);
+    }
 
-		return !getOreName(stack).equals("Unknown");
-	}
+    public static boolean isDust(ItemStack stack) {
 
-	public static boolean isBlock(ItemStack stack) {
+        return getOreName(stack).startsWith(DUST);
+    }
 
-		return getOreName(stack).startsWith(BLOCK);
-	}
+    public static boolean isIngot(ItemStack stack) {
 
-	public static boolean isOre(ItemStack stack) {
+        return getOreName(stack).startsWith(INGOT);
+    }
 
-		return getOreName(stack).startsWith(ORE);
-	}
+    public static boolean isNugget(ItemStack stack) {
 
-	public static boolean isDust(ItemStack stack) {
+        return getOreName(stack).startsWith(NUGGET);
+    }
 
-		return getOreName(stack).startsWith(DUST);
-	}
+    public static boolean isLog(ItemStack stack) {
 
-	public static boolean isIngot(ItemStack stack) {
+        return getOreName(stack).startsWith(LOG);
+    }
 
-		return getOreName(stack).startsWith(INGOT);
-	}
+    /* CREATING ItemStacks */
+    public static final ItemStack stack(Item t) {
 
-	public static boolean isNugget(ItemStack stack) {
+        return new ItemStack(t);
+    }
 
-		return getOreName(stack).startsWith(NUGGET);
-	}
+    public static final ItemStack stack(Item t, int s) {
 
-	public static boolean isLog(ItemStack stack) {
+        return new ItemStack(t, s);
+    }
 
-		return getOreName(stack).startsWith(LOG);
-	}
+    public static final ItemStack stack(Item t, int s, int m) {
 
-	/* CREATING ItemStacks */
-	public static final ItemStack stack(Item t) {
+        return new ItemStack(t, s, m);
+    }
 
-		return new ItemStack(t);
-	}
+    public static final ItemStack stack(Block t) {
 
-	public static final ItemStack stack(Item t, int s) {
+        return new ItemStack(t);
+    }
 
-		return new ItemStack(t, s);
-	}
+    public static final ItemStack stack(Block t, int s) {
 
-	public static final ItemStack stack(Item t, int s, int m) {
+        return new ItemStack(t, s);
+    }
 
-		return new ItemStack(t, s, m);
-	}
+    public static final ItemStack stack(Block t, int s, int m) {
 
-	public static final ItemStack stack(Block t) {
+        return new ItemStack(t, s, m);
+    }
 
-		return new ItemStack(t);
-	}
+    public static final ItemStack stack2(Item t) {
 
-	public static final ItemStack stack(Block t, int s) {
+        return new ItemStack(t, 1, WILDCARD_VALUE);
+    }
 
-		return new ItemStack(t, s);
-	}
+    public static final ItemStack stack2(Item t, int s) {
 
-	public static final ItemStack stack(Block t, int s, int m) {
+        return new ItemStack(t, s, WILDCARD_VALUE);
+    }
 
-		return new ItemStack(t, s, m);
-	}
+    public static final ItemStack stack2(Block t) {
 
-	public static final ItemStack stack2(Item t) {
+        return new ItemStack(t, 1, WILDCARD_VALUE);
+    }
 
-		return new ItemStack(t, 1, WILDCARD_VALUE);
-	}
+    public static final ItemStack stack2(Block t, int s) {
 
-	public static final ItemStack stack2(Item t, int s) {
+        return new ItemStack(t, s, WILDCARD_VALUE);
+    }
 
-		return new ItemStack(t, s, WILDCARD_VALUE);
-	}
+    /* CREATING OreRecipes */
+    public static final IRecipe ShapedRecipe(Block result, Object... recipe) {
 
-	public static final ItemStack stack2(Block t) {
+        return new ShapedOreRecipe(result, recipe);
+    }
 
-		return new ItemStack(t, 1, WILDCARD_VALUE);
-	}
+    public static final IRecipe ShapedRecipe(Item result, Object... recipe) {
 
-	public static final ItemStack stack2(Block t, int s) {
+        return new ShapedOreRecipe(result, recipe);
+    }
 
-		return new ItemStack(t, s, WILDCARD_VALUE);
-	}
+    public static final IRecipe ShapedRecipe(ItemStack result, Object... recipe) {
 
-	/* CREATING OreRecipes */
-	public static final IRecipe ShapedRecipe(Block result, Object... recipe) {
+        return new ShapedOreRecipe(result, recipe);
+    }
 
-		return new ShapedOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapedRecipe(Block result, int s, Object... recipe) {
 
-	public static final IRecipe ShapedRecipe(Item result, Object... recipe) {
+        return new ShapedOreRecipe(stack(result, s), recipe);
+    }
 
-		return new ShapedOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapedRecipe(Item result, int s, Object... recipe) {
 
-	public static final IRecipe ShapedRecipe(ItemStack result, Object... recipe) {
+        return new ShapedOreRecipe(stack(result, s), recipe);
+    }
 
-		return new ShapedOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapedRecipe(ItemStack result, int s, Object... recipe) {
 
-	public static final IRecipe ShapedRecipe(Block result, int s, Object... recipe) {
+        return new ShapedOreRecipe(cloneStack(result, s), recipe);
+    }
 
-		return new ShapedOreRecipe(stack(result, s), recipe);
-	}
+    public static final IRecipe ShapelessRecipe(Block result, Object... recipe) {
 
-	public static final IRecipe ShapedRecipe(Item result, int s, Object... recipe) {
+        return new ShapelessOreRecipe(result, recipe);
+    }
 
-		return new ShapedOreRecipe(stack(result, s), recipe);
-	}
+    public static final IRecipe ShapelessRecipe(Item result, Object... recipe) {
 
-	public static final IRecipe ShapedRecipe(ItemStack result, int s, Object... recipe) {
+        return new ShapelessOreRecipe(result, recipe);
+    }
 
-		return new ShapedOreRecipe(cloneStack(result, s), recipe);
-	}
+    public static final IRecipe ShapelessRecipe(ItemStack result, Object... recipe) {
 
-	public static final IRecipe ShapelessRecipe(Block result, Object... recipe) {
+        return new ShapelessOreRecipe(result, recipe);
+    }
 
-		return new ShapelessOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapelessRecipe(Block result, int s, Object... recipe) {
 
-	public static final IRecipe ShapelessRecipe(Item result, Object... recipe) {
+        return new ShapelessOreRecipe(stack(result, s), recipe);
+    }
 
-		return new ShapelessOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapelessRecipe(Item result, int s, Object... recipe) {
 
-	public static final IRecipe ShapelessRecipe(ItemStack result, Object... recipe) {
+        return new ShapelessOreRecipe(stack(result, s), recipe);
+    }
 
-		return new ShapelessOreRecipe(result, recipe);
-	}
+    public static final IRecipe ShapelessRecipe(ItemStack result, int s, Object... recipe) {
 
-	public static final IRecipe ShapelessRecipe(Block result, int s, Object... recipe) {
+        return new ShapelessOreRecipe(cloneStack(result, s), recipe);
+    }
 
-		return new ShapelessOreRecipe(stack(result, s), recipe);
-	}
+    /* CRAFTING HELPER FUNCTIONS */
+    // GEARS{
+    public static boolean addGearRecipe(ItemStack gear, String ingot) {
 
-	public static final IRecipe ShapelessRecipe(Item result, int s, Object... recipe) {
+        if (gear == null || !oreNameExists(ingot)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', "ingotIron"));
+        return true;
+    }
 
-		return new ShapelessOreRecipe(stack(result, s), recipe);
-	}
+    public static boolean addGearRecipe(ItemStack gear, String ingot, String center) {
 
-	public static final IRecipe ShapelessRecipe(ItemStack result, int s, Object... recipe) {
+        if (gear == null || !oreNameExists(ingot) || !oreNameExists(center)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		return new ShapelessOreRecipe(cloneStack(result, s), recipe);
-	}
+    public static boolean addGearRecipe(ItemStack gear, String ingot, ItemStack center) {
 
-	/* CRAFTING HELPER FUNCTIONS */
-	// GEARS{
-	public static boolean addGearRecipe(ItemStack gear, String ingot) {
+        if (gear == null | center == null || !oreNameExists(ingot)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		if (gear == null || !oreNameExists(ingot)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', "ingotIron"));
-		return true;
-	}
+    public static boolean addGearRecipe(ItemStack gear, ItemStack ingot, String center) {
 
-	public static boolean addGearRecipe(ItemStack gear, String ingot, String center) {
+        if (gear == null | ingot == null || !oreNameExists(center)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		if (gear == null || !oreNameExists(ingot) || !oreNameExists(center)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
-		return true;
-	}
+    public static boolean addGearRecipe(ItemStack gear, ItemStack ingot, ItemStack center) {
 
-	public static boolean addGearRecipe(ItemStack gear, String ingot, ItemStack center) {
+        if (gear == null | ingot == null | center == null) {
+            return false;
+        }
+        GameRegistry
+            .addRecipe(cloneStack(gear), " X ", "XIX", " X ", 'X', cloneStack(ingot, 1), 'I', cloneStack(center, 1));
+        return true;
+    }
 
-		if (gear == null | center == null || !oreNameExists(ingot)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
-		return true;
-	}
+    // rotated
+    public static boolean addRotatedGearRecipe(ItemStack gear, String ingot, String center) {
 
-	public static boolean addGearRecipe(ItemStack gear, ItemStack ingot, String center) {
+        if (gear == null || !oreNameExists(ingot) || !oreNameExists(center)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		if (gear == null | ingot == null || !oreNameExists(center)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, " X ", "XIX", " X ", 'X', ingot, 'I', center));
-		return true;
-	}
+    public static boolean addRotatedGearRecipe(ItemStack gear, String ingot, ItemStack center) {
 
-	public static boolean addGearRecipe(ItemStack gear, ItemStack ingot, ItemStack center) {
+        if (gear == null | center == null || !oreNameExists(ingot)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		if (gear == null | ingot == null | center == null) {
-			return false;
-		}
-		GameRegistry.addRecipe(cloneStack(gear), " X ", "XIX", " X ", 'X', cloneStack(ingot, 1), 'I', cloneStack(center, 1));
-		return true;
-	}
+    public static boolean addRotatedGearRecipe(ItemStack gear, ItemStack ingot, String center) {
 
-	// rotated
-	public static boolean addRotatedGearRecipe(ItemStack gear, String ingot, String center) {
+        if (gear == null | ingot == null || !oreNameExists(center)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
+        return true;
+    }
 
-		if (gear == null || !oreNameExists(ingot) || !oreNameExists(center)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
-		return true;
-	}
+    public static boolean addRotatedGearRecipe(ItemStack gear, ItemStack ingot, ItemStack center) {
 
-	public static boolean addRotatedGearRecipe(ItemStack gear, String ingot, ItemStack center) {
+        if (gear == null | ingot == null | center == null) {
+            return false;
+        }
+        GameRegistry
+            .addRecipe(cloneStack(gear), "X X", " I ", "X X", 'X', cloneStack(ingot, 1), 'I', cloneStack(center, 1));
+        return true;
+    }
 
-		if (gear == null | center == null || !oreNameExists(ingot)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
-		return true;
-	}
+    // }
 
-	public static boolean addRotatedGearRecipe(ItemStack gear, ItemStack ingot, String center) {
+    // SURROUND{
+    public static boolean addSurroundRecipe(ItemStack out, ItemStack one, ItemStack eight) {
 
-		if (gear == null | ingot == null || !oreNameExists(center)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(gear, "X X", " I ", "X X", 'X', ingot, 'I', center));
-		return true;
-	}
+        if (out == null | one == null | eight == null) {
+            return false;
+        }
+        GameRegistry
+            .addRecipe(cloneStack(out), "XXX", "XIX", "XXX", 'X', cloneStack(eight, 1), 'I', cloneStack(one, 1));
+        return true;
+    }
 
-	public static boolean addRotatedGearRecipe(ItemStack gear, ItemStack ingot, ItemStack center) {
+    public static boolean addSurroundRecipe(ItemStack out, String one, ItemStack eight) {
 
-		if (gear == null | ingot == null | center == null) {
-			return false;
-		}
-		GameRegistry.addRecipe(cloneStack(gear), "X X", " I ", "X X", 'X', cloneStack(ingot, 1), 'I', cloneStack(center, 1));
-		return true;
-	}
+        if (out == null | eight == null || !oreNameExists(one)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
+        return true;
+    }
 
-	// }
+    public static boolean addSurroundRecipe(ItemStack out, ItemStack one, String eight) {
 
-	// SURROUND{
-	public static boolean addSurroundRecipe(ItemStack out, ItemStack one, ItemStack eight) {
+        if (out == null | one == null || !oreNameExists(eight)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
+        return true;
+    }
 
-		if (out == null | one == null | eight == null) {
-			return false;
-		}
-		GameRegistry.addRecipe(cloneStack(out), "XXX", "XIX", "XXX", 'X', cloneStack(eight, 1), 'I', cloneStack(one, 1));
-		return true;
-	}
+    public static boolean addSurroundRecipe(ItemStack out, String one, String eight) {
 
-	public static boolean addSurroundRecipe(ItemStack out, String one, ItemStack eight) {
+        if (out == null || !oreNameExists(one) || !oreNameExists(eight)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
+        return true;
+    }
 
-		if (out == null | eight == null || !oreNameExists(one)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
-		return true;
-	}
+    // }
 
-	public static boolean addSurroundRecipe(ItemStack out, ItemStack one, String eight) {
+    // FENCES{
+    public static boolean addFenceRecipe(ItemStack out, ItemStack in) {
 
-		if (out == null | one == null || !oreNameExists(eight)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
-		return true;
-	}
+        if (out == null | in == null) {
+            return false;
+        }
+        GameRegistry.addRecipe(cloneStack(out), "XXX", "XXX", 'X', cloneStack(in, 1));
+        return true;
+    }
 
-	public static boolean addSurroundRecipe(ItemStack out, String one, String eight) {
+    public static boolean addFenceRecipe(ItemStack out, String in) {
 
-		if (out == null || !oreNameExists(one) || !oreNameExists(eight)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XIX", "XXX", 'X', eight, 'I', one));
-		return true;
-	}
+        if (out == null || !oreNameExists(in)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XXX", 'X', in));
+        return true;
+    }
 
-	// }
+    // }
 
-	// FENCES{
-	public static boolean addFenceRecipe(ItemStack out, ItemStack in) {
+    // REVERSE STORAGE{
+    public static boolean addReverseStorageRecipe(ItemStack nine, String one) {
 
-		if (out == null | in == null) {
-			return false;
-		}
-		GameRegistry.addRecipe(cloneStack(out), "XXX", "XXX", 'X', cloneStack(in, 1));
-		return true;
-	}
+        if (nine == null || !oreNameExists(one)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapelessRecipe(cloneStack(nine, 9), one));
+        return true;
+    }
 
-	public static boolean addFenceRecipe(ItemStack out, String in) {
+    public static boolean addReverseStorageRecipe(ItemStack nine, ItemStack one) {
 
-		if (out == null || !oreNameExists(in)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(out, "XXX", "XXX", 'X', in));
-		return true;
-	}
+        if (nine == null | one == null) {
+            return false;
+        }
+        GameRegistry.addShapelessRecipe(cloneStack(nine, 9), cloneStack(one, 1));
+        return true;
+    }
 
-	// }
+    public static boolean addSmallReverseStorageRecipe(ItemStack four, String one) {
 
-	// REVERSE STORAGE{
-	public static boolean addReverseStorageRecipe(ItemStack nine, String one) {
+        if (four == null || !oreNameExists(one)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapelessRecipe(cloneStack(four, 4), one));
+        return true;
+    }
 
-		if (nine == null || !oreNameExists(one)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapelessRecipe(cloneStack(nine, 9), one));
-		return true;
-	}
+    public static boolean addSmallReverseStorageRecipe(ItemStack four, ItemStack one) {
 
-	public static boolean addReverseStorageRecipe(ItemStack nine, ItemStack one) {
+        if (four == null | one == null) {
+            return false;
+        }
+        GameRegistry.addShapelessRecipe(cloneStack(four, 4), cloneStack(one, 1));
+        return true;
+    }
 
-		if (nine == null | one == null) {
-			return false;
-		}
-		GameRegistry.addShapelessRecipe(cloneStack(nine, 9), cloneStack(one, 1));
-		return true;
-	}
+    // }
 
-	public static boolean addSmallReverseStorageRecipe(ItemStack four, String one) {
+    // STORAGE{
+    public static boolean addStorageRecipe(ItemStack one, String nine) {
 
-		if (four == null || !oreNameExists(one)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapelessRecipe(cloneStack(four, 4), one));
-		return true;
-	}
+        if (one == null || !oreNameExists(nine)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapelessRecipe(one, nine, nine, nine, nine, nine, nine, nine, nine, nine));
+        return true;
+    }
 
-	public static boolean addSmallReverseStorageRecipe(ItemStack four, ItemStack one) {
+    public static boolean addStorageRecipe(ItemStack one, ItemStack nine) {
 
-		if (four == null | one == null) {
-			return false;
-		}
-		GameRegistry.addShapelessRecipe(cloneStack(four, 4), cloneStack(one, 1));
-		return true;
-	}
+        if (one == null | nine == null) {
+            return false;
+        }
+        nine = cloneStack(nine, 1);
+        GameRegistry.addShapelessRecipe(one, nine, nine, nine, nine, nine, nine, nine, nine, nine);
+        return true;
+    }
 
-	// }
+    public static boolean addSmallStorageRecipe(ItemStack one, String four) {
 
-	// STORAGE{
-	public static boolean addStorageRecipe(ItemStack one, String nine) {
+        if (one == null || !oreNameExists(four)) {
+            return false;
+        }
+        GameRegistry.addRecipe(ShapedRecipe(one, "XX", "XX", 'X', four));
+        return true;
+    }
 
-		if (one == null || !oreNameExists(nine)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapelessRecipe(one, nine, nine, nine, nine, nine, nine, nine, nine, nine));
-		return true;
-	}
+    public static boolean addSmallStorageRecipe(ItemStack one, ItemStack four) {
 
-	public static boolean addStorageRecipe(ItemStack one, ItemStack nine) {
+        if (one == null | four == null) {
+            return false;
+        }
+        GameRegistry.addRecipe(cloneStack(one), "XX", "XX", 'X', cloneStack(four, 1));
+        return true;
+    }
 
-		if (one == null | nine == null) {
-			return false;
-		}
-		nine = cloneStack(nine, 1);
-		GameRegistry.addShapelessRecipe(one, nine, nine, nine, nine, nine, nine, nine, nine, nine);
-		return true;
-	}
+    public static boolean addTwoWayStorageRecipe(ItemStack one, ItemStack nine) {
 
-	public static boolean addSmallStorageRecipe(ItemStack one, String four) {
+        return addStorageRecipe(one, nine) && addReverseStorageRecipe(nine, one);
+    }
 
-		if (one == null || !oreNameExists(four)) {
-			return false;
-		}
-		GameRegistry.addRecipe(ShapedRecipe(one, "XX", "XX", 'X', four));
-		return true;
-	}
+    public static boolean addTwoWayStorageRecipe(ItemStack one, String one_ore, ItemStack nine, String nine_ore) {
 
-	public static boolean addSmallStorageRecipe(ItemStack one, ItemStack four) {
+        return addStorageRecipe(one, nine_ore) && addReverseStorageRecipe(nine, one_ore);
+    }
 
-		if (one == null | four == null) {
-			return false;
-		}
-		GameRegistry.addRecipe(cloneStack(one), "XX", "XX", 'X', cloneStack(four, 1));
-		return true;
-	}
+    public static boolean addSmallTwoWayStorageRecipe(ItemStack one, ItemStack four) {
 
-	public static boolean addTwoWayStorageRecipe(ItemStack one, ItemStack nine) {
+        return addSmallStorageRecipe(one, four) && addSmallReverseStorageRecipe(four, one);
+    }
 
-		return addStorageRecipe(one, nine) && addReverseStorageRecipe(nine, one);
-	}
+    public static boolean addSmallTwoWayStorageRecipe(ItemStack one, String one_ore, ItemStack four, String four_ore) {
 
-	public static boolean addTwoWayStorageRecipe(ItemStack one, String one_ore, ItemStack nine, String nine_ore) {
+        return addSmallStorageRecipe(one, four_ore) && addSmallReverseStorageRecipe(four, one_ore);
+    }
 
-		return addStorageRecipe(one, nine_ore) && addReverseStorageRecipe(nine, one_ore);
-	}
+    // }
 
-	public static boolean addSmallTwoWayStorageRecipe(ItemStack one, ItemStack four) {
+    // SMELTING{
+    public static boolean addSmelting(ItemStack out, Item in) {
 
-		return addSmallStorageRecipe(one, four) && addSmallReverseStorageRecipe(four, one);
-	}
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
+        return true;
+    }
 
-	public static boolean addSmallTwoWayStorageRecipe(ItemStack one, String one_ore, ItemStack four, String four_ore) {
+    public static boolean addSmelting(ItemStack out, Block in) {
 
-		return addSmallStorageRecipe(one, four_ore) && addSmallReverseStorageRecipe(four, one_ore);
-	}
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
+        return true;
+    }
 
-	// }
+    public static boolean addSmelting(ItemStack out, ItemStack in) {
 
-	// SMELTING{
-	public static boolean addSmelting(ItemStack out, Item in) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
-		return true;
-	}
+    public static boolean addSmelting(ItemStack out, Item in, float XP) {
 
-	public static boolean addSmelting(ItemStack out, Block in) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
-		return true;
-	}
+    public static boolean addSmelting(ItemStack out, Block in, float XP) {
 
-	public static boolean addSmelting(ItemStack out, ItemStack in) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0);
-		return true;
-	}
+    public static boolean addSmelting(ItemStack out, ItemStack in, float XP) {
 
-	public static boolean addSmelting(ItemStack out, Item in, float XP) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
-		return true;
-	}
+    public static boolean addWeakSmelting(ItemStack out, Item in) {
 
-	public static boolean addSmelting(ItemStack out, Block in, float XP) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
-		return true;
-	}
+    public static boolean addWeakSmelting(ItemStack out, Block in) {
 
-	public static boolean addSmelting(ItemStack out, ItemStack in, float XP) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), XP);
-		return true;
-	}
+    public static boolean addWeakSmelting(ItemStack out, ItemStack in) {
 
-	public static boolean addWeakSmelting(ItemStack out, Item in) {
+        if (out == null | in == null) {
+            return false;
+        }
+        FurnaceRecipes.smelting()
+            .func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
+        return true;
+    }
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
-		return true;
-	}
+    // }
 
-	public static boolean addWeakSmelting(ItemStack out, Block in) {
+    public static boolean addTwoWayConversionRecipe(ItemStack a, ItemStack b) {
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
-		return true;
-	}
+        if (a == null | b == null) {
+            return false;
+        }
+        GameRegistry.addShapelessRecipe(cloneStack(a, 1), cloneStack(b, 1));
+        GameRegistry.addShapelessRecipe(cloneStack(b, 1), cloneStack(a, 1));
+        return true;
+    }
 
-	public static boolean addWeakSmelting(ItemStack out, ItemStack in) {
+    public static void registerWithHandlers(String oreName, ItemStack stack) {
 
-		if (out == null | in == null) {
-			return false;
-		}
-		FurnaceRecipes.smelting().func_151394_a(cloneStack(in, 1), cloneStack(out), 0.1f);
-		return true;
-	}
+        OreDictionary.registerOre(oreName, stack);
+        GameRegistry.registerCustomItemStack(oreName, stack);
+        FMLInterModComms.sendMessage("ForgeMicroblock", "microMaterial", stack);
+    }
 
-	// }
+    // RECIPE{
 
-	public static boolean addTwoWayConversionRecipe(ItemStack a, ItemStack b) {
+    public static void addRecipe(IRecipe recipe) {
 
-		if (a == null | b == null) {
-			return false;
-		}
-		GameRegistry.addShapelessRecipe(cloneStack(a, 1), cloneStack(b, 1));
-		GameRegistry.addShapelessRecipe(cloneStack(b, 1), cloneStack(a, 1));
-		return true;
-	}
+        GameRegistry.addRecipe(recipe);
+    }
 
-	public static void registerWithHandlers(String oreName, ItemStack stack) {
+    public static void addRecipe(ItemStack out, Object... recipe) {
 
-		OreDictionary.registerOre(oreName, stack);
-		GameRegistry.registerCustomItemStack(oreName, stack);
-		FMLInterModComms.sendMessage("ForgeMicroblock", "microMaterial", stack);
-	}
+        GameRegistry.addRecipe(out, recipe);
+    }
 
-	// RECIPE{
+    public static void addShapedRecipe(ItemStack out, Object... recipe) {
 
-	public static void addRecipe(IRecipe recipe) {
+        GameRegistry.addRecipe(out, recipe);
+    }
 
-		GameRegistry.addRecipe(recipe);
-	}
+    public static void addShapedRecipe(Item out, Object... recipe) {
 
-	public static void addRecipe(ItemStack out, Object... recipe) {
+        addRecipe(new ItemStack(out), recipe);
+    }
 
-		GameRegistry.addRecipe(out, recipe);
-	}
+    public static void addShapedRecipe(Block out, Object... recipe) {
 
-	public static void addShapedRecipe(ItemStack out, Object... recipe) {
+        addRecipe(new ItemStack(out), recipe);
+    }
 
-		GameRegistry.addRecipe(out, recipe);
-	}
+    public static void addShapelessRecipe(ItemStack out, Object... recipe) {
 
-	public static void addShapedRecipe(Item out, Object... recipe) {
+        GameRegistry.addShapelessRecipe(out, recipe);
+    }
 
-		addRecipe(new ItemStack(out), recipe);
-	}
+    public static void addShapelessRecipe(Item out, Object... recipe) {
 
-	public static void addShapedRecipe(Block out, Object... recipe) {
+        addShapelessRecipe(new ItemStack(out), recipe);
+    }
 
-		addRecipe(new ItemStack(out), recipe);
-	}
+    public static void addShapelessRecipe(Block out, Object... recipe) {
 
-	public static void addShapelessRecipe(ItemStack out, Object... recipe) {
+        addShapelessRecipe(new ItemStack(out), recipe);
+    }
 
-		GameRegistry.addShapelessRecipe(out, recipe);
-	}
+    public static void addShapedOreRecipe(ItemStack out, Object... recipe) {
 
-	public static void addShapelessRecipe(Item out, Object... recipe) {
+        GameRegistry.addRecipe(ShapedRecipe(out, recipe));
+    }
 
-		addShapelessRecipe(new ItemStack(out), recipe);
-	}
+    public static void addShapedOreRecipe(Item out, Object... recipe) {
 
-	public static void addShapelessRecipe(Block out, Object... recipe) {
+        GameRegistry.addRecipe(ShapedRecipe(out, recipe));
+    }
 
-		addShapelessRecipe(new ItemStack(out), recipe);
-	}
+    public static void addShapedOreRecipe(Block out, Object... recipe) {
 
-	public static void addShapedOreRecipe(ItemStack out, Object... recipe) {
+        GameRegistry.addRecipe(ShapedRecipe(out, recipe));
+    }
 
-		GameRegistry.addRecipe(ShapedRecipe(out, recipe));
-	}
+    public static void addShapelessOreRecipe(ItemStack out, Object... recipe) {
 
-	public static void addShapedOreRecipe(Item out, Object... recipe) {
+        GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
+    }
 
-		GameRegistry.addRecipe(ShapedRecipe(out, recipe));
-	}
+    public static void addShapelessOreRecipe(Item out, Object... recipe) {
 
-	public static void addShapedOreRecipe(Block out, Object... recipe) {
+        GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
+    }
 
-		GameRegistry.addRecipe(ShapedRecipe(out, recipe));
-	}
+    public static void addShapelessOreRecipe(Block out, Object... recipe) {
 
-	public static void addShapelessOreRecipe(ItemStack out, Object... recipe) {
+        GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
+    }
 
-		GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
-	}
+    // }
 
-	public static void addShapelessOreRecipe(Item out, Object... recipe) {
+    /* EMPOWERED ITEM HELPERS */
+    public static boolean isPlayerHoldingEmpowerableItem(EntityPlayer player) {
 
-		GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
-	}
+        Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem()
+            .getItem() : null;
+        return equipped instanceof IEmpowerableItem;
+    }
 
-	public static void addShapelessOreRecipe(Block out, Object... recipe) {
+    public static boolean isPlayerHoldingEmpoweredItem(EntityPlayer player) {
 
-		GameRegistry.addRecipe(ShapelessRecipe(out, recipe));
-	}
+        Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem()
+            .getItem() : null;
+        return equipped instanceof IEmpowerableItem
+            && ((IEmpowerableItem) equipped).isEmpowered(player.getCurrentEquippedItem());
+    }
 
-	// }
+    public static boolean toggleHeldEmpowerableItemState(EntityPlayer player) {
 
-	/* EMPOWERED ITEM HELPERS */
-	public static boolean isPlayerHoldingEmpowerableItem(EntityPlayer player) {
+        ItemStack equipped = player.getCurrentEquippedItem();
+        IEmpowerableItem empowerableItem = (IEmpowerableItem) equipped.getItem();
 
-		Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem().getItem() : null;
-		return equipped instanceof IEmpowerableItem;
-	}
+        return empowerableItem.setEmpoweredState(equipped, !empowerableItem.isEmpowered(equipped));
+    }
 
-	public static boolean isPlayerHoldingEmpoweredItem(EntityPlayer player) {
+    /* MULTIMODE ITEM HELPERS */
+    public static boolean isPlayerHoldingMultiModeItem(EntityPlayer player) {
 
-		Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem().getItem() : null;
-		return equipped instanceof IEmpowerableItem && ((IEmpowerableItem) equipped).isEmpowered(player.getCurrentEquippedItem());
-	}
+        Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem()
+            .getItem() : null;
+        return equipped instanceof IMultiModeItem;
+    }
 
-	public static boolean toggleHeldEmpowerableItemState(EntityPlayer player) {
+    public static boolean incrHeldMultiModeItemState(EntityPlayer player) {
 
-		ItemStack equipped = player.getCurrentEquippedItem();
-		IEmpowerableItem empowerableItem = (IEmpowerableItem) equipped.getItem();
+        ItemStack equipped = player.getCurrentEquippedItem();
+        IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
 
-		return empowerableItem.setEmpoweredState(equipped, !empowerableItem.isEmpowered(equipped));
-	}
+        return multiModeItem.incrMode(equipped);
+    }
 
-	/* MULTIMODE ITEM HELPERS */
-	public static boolean isPlayerHoldingMultiModeItem(EntityPlayer player) {
+    public static boolean decrHeldMultiModeItemState(EntityPlayer player) {
 
-		Item equipped = player.getCurrentEquippedItem() != null ? player.getCurrentEquippedItem().getItem() : null;
-		return equipped instanceof IMultiModeItem;
-	}
+        ItemStack equipped = player.getCurrentEquippedItem();
+        IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
 
-	public static boolean incrHeldMultiModeItemState(EntityPlayer player) {
+        return multiModeItem.incrMode(equipped);
+    }
 
-		ItemStack equipped = player.getCurrentEquippedItem();
-		IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
+    public static boolean setHeldMultiModeItemState(EntityPlayer player, int mode) {
 
-		return multiModeItem.incrMode(equipped);
-	}
+        ItemStack equipped = player.getCurrentEquippedItem();
+        IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
 
-	public static boolean decrHeldMultiModeItemState(EntityPlayer player) {
+        return multiModeItem.setMode(equipped, mode);
+    }
 
-		ItemStack equipped = player.getCurrentEquippedItem();
-		IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
+    /**
+     * Determine if a player is holding a registered Fluid Container.
+     */
+    public static final boolean isPlayerHoldingFluidContainer(EntityPlayer player) {
 
-		return multiModeItem.incrMode(equipped);
-	}
+        return FluidContainerRegistry.isContainer(player.getCurrentEquippedItem());
+    }
 
-	public static boolean setHeldMultiModeItemState(EntityPlayer player, int mode) {
+    public static final boolean isPlayerHoldingFluidContainerItem(EntityPlayer player) {
 
-		ItemStack equipped = player.getCurrentEquippedItem();
-		IMultiModeItem multiModeItem = (IMultiModeItem) equipped.getItem();
+        return FluidHelper.isPlayerHoldingFluidContainerItem(player);
+    }
 
-		return multiModeItem.setMode(equipped, mode);
-	}
+    public static final boolean isPlayerHoldingEnergyContainerItem(EntityPlayer player) {
 
-	/**
-	 * Determine if a player is holding a registered Fluid Container.
-	 */
-	public static final boolean isPlayerHoldingFluidContainer(EntityPlayer player) {
+        return EnergyHelper.isPlayerHoldingEnergyContainerItem(player);
+    }
 
-		return FluidContainerRegistry.isContainer(player.getCurrentEquippedItem());
-	}
+    public static final boolean isPlayerHoldingNothing(EntityPlayer player) {
 
-	public static final boolean isPlayerHoldingFluidContainerItem(EntityPlayer player) {
+        return player.getCurrentEquippedItem() == null;
+    }
 
-		return FluidHelper.isPlayerHoldingFluidContainerItem(player);
-	}
+    public static Item getItemFromStack(ItemStack theStack) {
 
-	public static final boolean isPlayerHoldingEnergyContainerItem(EntityPlayer player) {
+        return theStack == null ? null : theStack.getItem();
+    }
 
-		return EnergyHelper.isPlayerHoldingEnergyContainerItem(player);
-	}
+    public static boolean areItemsEqual(Item itemA, Item itemB) {
 
-	public static final boolean isPlayerHoldingNothing(EntityPlayer player) {
+        if (itemA == null | itemB == null) {
+            return false;
+        }
+        return itemA == itemB || itemA.equals(itemB);
+    }
 
-		return player.getCurrentEquippedItem() == null;
-	}
+    public static final boolean isPlayerHoldingItem(Class<?> item, EntityPlayer player) {
 
-	public static Item getItemFromStack(ItemStack theStack) {
+        return item.isInstance(getItemFromStack(player.getCurrentEquippedItem()));
+    }
 
-		return theStack == null ? null : theStack.getItem();
-	}
+    /**
+     * Determine if a player is holding an ItemStack of a specific Item type.
+     */
+    public static final boolean isPlayerHoldingItem(Item item, EntityPlayer player) {
 
-	public static boolean areItemsEqual(Item itemA, Item itemB) {
+        return areItemsEqual(item, getItemFromStack(player.getCurrentEquippedItem()));
+    }
 
-		if (itemA == null | itemB == null) {
-			return false;
-		}
-		return itemA == itemB || itemA.equals(itemB);
-	}
+    /**
+     * Determine if a player is holding an ItemStack with a specific Item ID, Metadata, and NBT.
+     */
+    public static final boolean isPlayerHoldingItemStack(ItemStack stack, EntityPlayer player) {
 
-	public static final boolean isPlayerHoldingItem(Class<?> item, EntityPlayer player) {
+        return itemsEqualWithMetadata(stack, player.getCurrentEquippedItem());
+    }
 
-		return item.isInstance(getItemFromStack(player.getCurrentEquippedItem()));
-	}
+    /**
+     * Determine if the damage of two ItemStacks is equal. Assumes both itemstacks are of type A.
+     */
+    public static boolean itemsDamageEqual(ItemStack stackA, ItemStack stackB) {
 
-	/**
-	 * Determine if a player is holding an ItemStack of a specific Item type.
-	 */
-	public static final boolean isPlayerHoldingItem(Item item, EntityPlayer player) {
+        return (!stackA.getHasSubtypes() && stackA.getMaxDamage() == 0)
+            || (getItemDamage(stackA) == getItemDamage(stackB));
+    }
 
-		return areItemsEqual(item, getItemFromStack(player.getCurrentEquippedItem()));
-	}
+    /**
+     * Determine if two ItemStacks have the same Item.
+     */
+    public static boolean itemsEqualWithoutMetadata(ItemStack stackA, ItemStack stackB) {
 
-	/**
-	 * Determine if a player is holding an ItemStack with a specific Item ID, Metadata, and NBT.
-	 */
-	public static final boolean isPlayerHoldingItemStack(ItemStack stack, EntityPlayer player) {
+        if (stackA == null || stackB == null) {
+            return false;
+        }
+        return areItemsEqual(stackA.getItem(), stackB.getItem());
+    }
 
-		return itemsEqualWithMetadata(stack, player.getCurrentEquippedItem());
-	}
+    /**
+     * Determine if two ItemStacks have the same Item and NBT.
+     */
+    public static boolean itemsEqualWithoutMetadata(ItemStack stackA, ItemStack stackB, boolean checkNBT) {
 
-	/**
-	 * Determine if the damage of two ItemStacks is equal. Assumes both itemstacks are of type A.
-	 */
-	public static boolean itemsDamageEqual(ItemStack stackA, ItemStack stackB) {
+        return itemsEqualWithoutMetadata(stackA, stackB)
+            && (!checkNBT || doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound));
+    }
 
-		return (!stackA.getHasSubtypes() && stackA.getMaxDamage() == 0) || (getItemDamage(stackA) == getItemDamage(stackB));
-	}
+    /**
+     * Determine if two ItemStacks have the same Item and damage.
+     */
+    public static boolean itemsEqualWithMetadata(ItemStack stackA, ItemStack stackB) {
 
-	/**
-	 * Determine if two ItemStacks have the same Item.
-	 */
-	public static boolean itemsEqualWithoutMetadata(ItemStack stackA, ItemStack stackB) {
+        return itemsEqualWithoutMetadata(stackA, stackB) && itemsDamageEqual(stackA, stackB);
+    }
 
-		if (stackA == null || stackB == null) {
-			return false;
-		}
-		return areItemsEqual(stackA.getItem(), stackB.getItem());
-	}
+    /**
+     * Determine if two ItemStacks have the same Item, damage, and NBT.
+     */
+    public static boolean itemsEqualWithMetadata(ItemStack stackA, ItemStack stackB, boolean checkNBT) {
 
-	/**
-	 * Determine if two ItemStacks have the same Item and NBT.
-	 */
-	public static boolean itemsEqualWithoutMetadata(ItemStack stackA, ItemStack stackB, boolean checkNBT) {
+        return itemsEqualWithMetadata(stackA, stackB)
+            && (!checkNBT || doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound));
+    }
 
-		return itemsEqualWithoutMetadata(stackA, stackB) && (!checkNBT || doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound));
-	}
+    /**
+     * Determine if two ItemStacks have the same Item, identical damage, and NBT.
+     */
+    public static boolean itemsIdentical(ItemStack stackA, ItemStack stackB) {
 
-	/**
-	 * Determine if two ItemStacks have the same Item and damage.
-	 */
-	public static boolean itemsEqualWithMetadata(ItemStack stackA, ItemStack stackB) {
+        return itemsEqualWithoutMetadata(stackA, stackB) && getItemDamage(stackA) == getItemDamage(stackB)
+            && doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound);
+    }
 
-		return itemsEqualWithoutMetadata(stackA, stackB) && itemsDamageEqual(stackA, stackB);
-	}
+    /**
+     * Determine if two NBTTagCompounds are equal.
+     */
+    public static boolean doNBTsMatch(NBTTagCompound nbtA, NBTTagCompound nbtB) {
 
-	/**
-	 * Determine if two ItemStacks have the same Item, damage, and NBT.
-	 */
-	public static boolean itemsEqualWithMetadata(ItemStack stackA, ItemStack stackB, boolean checkNBT) {
+        if (nbtA == null & nbtB == null) {
+            return true;
+        }
+        if (nbtA != null & nbtB != null) {
+            return nbtA.equals(nbtB);
+        }
+        return false;
+    }
 
-		return itemsEqualWithMetadata(stackA, stackB) && (!checkNBT || doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound));
-	}
+    public static boolean itemsEqualForCrafting(ItemStack stackA, ItemStack stackB) {
 
-	/**
-	 * Determine if two ItemStacks have the same Item, identical damage, and NBT.
-	 */
-	public static boolean itemsIdentical(ItemStack stackA, ItemStack stackB) {
+        return itemsEqualWithoutMetadata(stackA, stackB)
+            && (!stackA.getHasSubtypes() || ((getItemDamage(stackA) == OreDictionary.WILDCARD_VALUE
+                || getItemDamage(stackB) == OreDictionary.WILDCARD_VALUE)
+                || getItemDamage(stackB) == getItemDamage(stackA)));
+    }
 
-		return itemsEqualWithoutMetadata(stackA, stackB) && getItemDamage(stackA) == getItemDamage(stackB)
-				&& doNBTsMatch(stackA.stackTagCompound, stackB.stackTagCompound);
-	}
+    public static boolean craftingEquivalent(ItemStack checked, ItemStack source, String oreDict, ItemStack output) {
 
-	/**
-	 * Determine if two NBTTagCompounds are equal.
-	 */
-	public static boolean doNBTsMatch(NBTTagCompound nbtA, NBTTagCompound nbtB) {
+        if (itemsEqualForCrafting(checked, source)) {
+            return true;
+        } else if (output != null && isBlacklist(output)) {
+            return false;
+        } else if (oreDict == null || oreDict.equals("Unknown")) {
+            return false;
+        } else {
+            return getOreName(checked).equalsIgnoreCase(oreDict);
+        }
+    }
 
-		if (nbtA == null & nbtB == null) {
-			return true;
-		}
-		if (nbtA != null & nbtB != null) {
-			return nbtA.equals(nbtB);
-		}
-		return false;
-	}
+    public static boolean doOreIDsMatch(ItemStack stackA, ItemStack stackB) {
 
-	public static boolean itemsEqualForCrafting(ItemStack stackA, ItemStack stackB) {
+        int id = oreProxy.getOreID(stackA);
+        return id >= 0 && id == oreProxy.getOreID(stackB);
+    }
 
-		return itemsEqualWithoutMetadata(stackA, stackB)
-				&& (!stackA.getHasSubtypes() || ((getItemDamage(stackA) == OreDictionary.WILDCARD_VALUE || getItemDamage(stackB) == OreDictionary.WILDCARD_VALUE) || getItemDamage(stackB) == getItemDamage(stackA)));
-	}
+    public static boolean isBlacklist(ItemStack output) {
 
-	public static boolean craftingEquivalent(ItemStack checked, ItemStack source, String oreDict, ItemStack output) {
+        Item item = output.getItem();
+        return Item.getItemFromBlock(Blocks.birch_stairs) == item || Item.getItemFromBlock(Blocks.jungle_stairs) == item
+            || Item.getItemFromBlock(Blocks.oak_stairs) == item
+            || Item.getItemFromBlock(Blocks.spruce_stairs) == item
+            || Item.getItemFromBlock(Blocks.planks) == item
+            || Item.getItemFromBlock(Blocks.wooden_slab) == item;
+    }
 
-		if (itemsEqualForCrafting(checked, source)) {
-			return true;
-		} else if (output != null && isBlacklist(output)) {
-			return false;
-		} else if (oreDict == null || oreDict.equals("Unknown")) {
-			return false;
-		} else {
-			return getOreName(checked).equalsIgnoreCase(oreDict);
-		}
-	}
+    public static String getItemNBTString(ItemStack theItem, String nbtKey, String invalidReturn) {
 
-	public static boolean doOreIDsMatch(ItemStack stackA, ItemStack stackB) {
+        return theItem.stackTagCompound != null && theItem.stackTagCompound.hasKey(nbtKey)
+            ? theItem.stackTagCompound.getString(nbtKey)
+            : invalidReturn;
+    }
 
-		int id = oreProxy.getOreID(stackA);
-		return id >= 0 && id == oreProxy.getOreID(stackB);
-	}
+    /**
+     * Adds Inventory information to ItemStacks which themselves hold things. Called in addInformation().
+     */
+    public static void addInventoryInformation(ItemStack stack, List<String> list) {
 
-	public static boolean isBlacklist(ItemStack output) {
+        addInventoryInformation(stack, list, 0, Integer.MAX_VALUE);
+    }
 
-		Item item = output.getItem();
-		return Item.getItemFromBlock(Blocks.birch_stairs) == item || Item.getItemFromBlock(Blocks.jungle_stairs) == item
-				|| Item.getItemFromBlock(Blocks.oak_stairs) == item || Item.getItemFromBlock(Blocks.spruce_stairs) == item
-				|| Item.getItemFromBlock(Blocks.planks) == item || Item.getItemFromBlock(Blocks.wooden_slab) == item;
-	}
+    public static void addInventoryInformation(ItemStack stack, List<String> list, int minSlot, int maxSlot) {
 
-	public static String getItemNBTString(ItemStack theItem, String nbtKey, String invalidReturn) {
+        if (stack.stackTagCompound == null) {
+            list.add(StringHelper.localize("info.cofh.empty"));
+            return;
+        }
+        if (stack.getItem() instanceof IInventoryContainerItem && stack.stackTagCompound.hasKey("Accessible")) {
+            addAccessibleInventoryInformation(stack, list, minSlot, maxSlot);
+            return;
+        }
+        if (!stack.stackTagCompound.hasKey("Inventory")
+            || stack.stackTagCompound.getTagList("Inventory", stack.stackTagCompound.getId())
+                .tagCount() <= 0) {
+            list.add(StringHelper.localize("info.cofh.empty"));
+            return;
+        }
+        NBTTagList nbtList = stack.stackTagCompound.getTagList("Inventory", stack.stackTagCompound.getId());
+        ItemStack curStack;
+        ItemStack curStack2;
 
-		return theItem.stackTagCompound != null && theItem.stackTagCompound.hasKey(nbtKey) ? theItem.stackTagCompound.getString(nbtKey) : invalidReturn;
-	}
+        ArrayList<ItemStack> containedItems = new ArrayList<ItemStack>();
 
-	/**
-	 * Adds Inventory information to ItemStacks which themselves hold things. Called in addInformation().
-	 */
-	public static void addInventoryInformation(ItemStack stack, List<String> list) {
+        boolean[] visited = new boolean[nbtList.tagCount()];
 
-		addInventoryInformation(stack, list, 0, Integer.MAX_VALUE);
-	}
+        for (int i = 0; i < nbtList.tagCount(); i++) {
+            NBTTagCompound tag = nbtList.getCompoundTagAt(i);
+            int slot = tag.getInteger("Slot");
 
-	public static void addInventoryInformation(ItemStack stack, List<String> list, int minSlot, int maxSlot) {
+            if (visited[i] || slot < minSlot || slot > maxSlot) {
+                continue;
+            }
+            visited[i] = true;
+            curStack = ItemStack.loadItemStackFromNBT(tag);
 
-		if (stack.stackTagCompound == null) {
-			list.add(StringHelper.localize("info.cofh.empty"));
-			return;
-		}
-		if (stack.getItem() instanceof IInventoryContainerItem && stack.stackTagCompound.hasKey("Accessible")) {
-			addAccessibleInventoryInformation(stack, list, minSlot, maxSlot);
-			return;
-		}
-		if (!stack.stackTagCompound.hasKey("Inventory") || stack.stackTagCompound.getTagList("Inventory", stack.stackTagCompound.getId()).tagCount() <= 0) {
-			list.add(StringHelper.localize("info.cofh.empty"));
-			return;
-		}
-		NBTTagList nbtList = stack.stackTagCompound.getTagList("Inventory", stack.stackTagCompound.getId());
-		ItemStack curStack;
-		ItemStack curStack2;
+            if (curStack == null) {
+                continue;
+            }
+            containedItems.add(curStack);
+            for (int j = 0; j < nbtList.tagCount(); j++) {
+                NBTTagCompound tag2 = nbtList.getCompoundTagAt(j);
+                int slot2 = tag.getInteger("Slot");
 
-		ArrayList<ItemStack> containedItems = new ArrayList<ItemStack>();
+                if (visited[j] || slot2 < minSlot || slot2 > maxSlot) {
+                    continue;
+                }
+                curStack2 = ItemStack.loadItemStackFromNBT(tag2);
 
-		boolean[] visited = new boolean[nbtList.tagCount()];
-
-		for (int i = 0; i < nbtList.tagCount(); i++) {
-			NBTTagCompound tag = nbtList.getCompoundTagAt(i);
-			int slot = tag.getInteger("Slot");
-
-			if (visited[i] || slot < minSlot || slot > maxSlot) {
-				continue;
-			}
-			visited[i] = true;
-			curStack = ItemStack.loadItemStackFromNBT(tag);
-
-			if (curStack == null) {
-				continue;
-			}
-			containedItems.add(curStack);
-			for (int j = 0; j < nbtList.tagCount(); j++) {
-				NBTTagCompound tag2 = nbtList.getCompoundTagAt(j);
-				int slot2 = tag.getInteger("Slot");
-
-				if (visited[j] || slot2 < minSlot || slot2 > maxSlot) {
-					continue;
-				}
-				curStack2 = ItemStack.loadItemStackFromNBT(tag2);
-
-				if (curStack2 == null) {
-					continue;
-				}
-				if (itemsEqualWithMetadata(curStack, curStack2)) {
-					curStack.stackSize += curStack2.stackSize;
-					visited[j] = true;
-				}
-			}
-		}
-		if (containedItems.size() > 0) {
-			list.add(StringHelper.localize("info.cofh.contents") + ":");
-		}
-		for (ItemStack item : containedItems) {
-			int maxStackSize = item.getMaxStackSize();
-
-			if (!StringHelper.displayStackCount || item.stackSize < maxStackSize || maxStackSize == 1) {
-				list.add("    " + StringHelper.BRIGHT_GREEN + item.stackSize + " " + StringHelper.getItemName(item));
-			} else {
-				if (item.stackSize % maxStackSize != 0) {
-					list.add("    " + StringHelper.BRIGHT_GREEN + maxStackSize + "x" + item.stackSize / maxStackSize + "+" + item.stackSize % maxStackSize
-							+ " " + StringHelper.getItemName(item));
-				} else {
-					list.add("    " + StringHelper.BRIGHT_GREEN + maxStackSize + "x" + item.stackSize / maxStackSize + " " + StringHelper.getItemName(item));
-				}
-			}
-		}
-	}
-
-	public static void addAccessibleInventoryInformation(ItemStack stack, List<String> list, int minSlot, int maxSlot) {
-
-		int invSize = ((IInventoryContainerItem) stack.getItem()).getSizeInventory(stack);
-		ItemStack curStack;
-		ItemStack curStack2;
-
-		ArrayList<ItemStack> containedItems = new ArrayList<ItemStack>();
-
-		boolean[] visited = new boolean[invSize];
-
-		for (int i = minSlot; i < Math.min(invSize, maxSlot); i++) {
-			if (visited[i]) {
-				continue;
-			}
-			if (!stack.stackTagCompound.hasKey("Slot" + i)) {
-				continue;
-			}
-			curStack = ItemStack.loadItemStackFromNBT(stack.stackTagCompound.getCompoundTag("Slot" + i));
-			visited[i] = true;
-
-			if (curStack == null) {
-				continue;
-			}
-			containedItems.add(curStack);
-			for (int j = minSlot; j < Math.min(invSize, maxSlot); j++) {
-				if (visited[j]) {
-					continue;
-				}
-				if (!stack.stackTagCompound.hasKey("Slot" + j)) {
-					continue;
-				}
-				curStack2 = ItemStack.loadItemStackFromNBT(stack.stackTagCompound.getCompoundTag("Slot" + j));
-
-				if (curStack2 == null) {
-					continue;
-				}
-				if (itemsEqualWithMetadata(curStack, curStack2)) {
-					curStack.stackSize += curStack2.stackSize;
-					visited[j] = true;
-				}
-			}
-		}
-		if (containedItems.size() > 0) {
-			list.add(StringHelper.localize("info.cofh.contents") + ":");
-		} else {
-			list.add(StringHelper.localize("info.cofh.empty"));
-		}
-		for (ItemStack item : containedItems) {
-			int maxStackSize = item.getMaxStackSize();
-
-			if (!StringHelper.displayStackCount || item.stackSize < maxStackSize || maxStackSize == 1) {
-				list.add("    " + StringHelper.BRIGHT_GREEN + item.stackSize + " " + StringHelper.getItemName(item));
-			} else {
-				if (item.stackSize % maxStackSize != 0) {
-					list.add("    " + StringHelper.BRIGHT_GREEN + maxStackSize + "x" + item.stackSize / maxStackSize + "+" + item.stackSize % maxStackSize
-							+ " " + StringHelper.getItemName(item));
-				} else {
-					list.add("    " + StringHelper.BRIGHT_GREEN + maxStackSize + "x" + item.stackSize / maxStackSize + " " + StringHelper.getItemName(item));
-				}
-			}
-		}
-	}
+                if (curStack2 == null) {
+                    continue;
+                }
+                if (itemsEqualWithMetadata(curStack, curStack2)) {
+                    curStack.stackSize += curStack2.stackSize;
+                    visited[j] = true;
+                }
+            }
+        }
+        if (containedItems.size() > 0) {
+            list.add(StringHelper.localize("info.cofh.contents") + ":");
+        }
+        for (ItemStack item : containedItems) {
+            int maxStackSize = item.getMaxStackSize();
+
+            if (!StringHelper.displayStackCount || item.stackSize < maxStackSize || maxStackSize == 1) {
+                list.add("    " + StringHelper.BRIGHT_GREEN + item.stackSize + " " + StringHelper.getItemName(item));
+            } else {
+                if (item.stackSize % maxStackSize != 0) {
+                    list.add(
+                        "    " + StringHelper.BRIGHT_GREEN
+                            + maxStackSize
+                            + "x"
+                            + item.stackSize / maxStackSize
+                            + "+"
+                            + item.stackSize % maxStackSize
+                            + " "
+                            + StringHelper.getItemName(item));
+                } else {
+                    list.add(
+                        "    " + StringHelper.BRIGHT_GREEN
+                            + maxStackSize
+                            + "x"
+                            + item.stackSize / maxStackSize
+                            + " "
+                            + StringHelper.getItemName(item));
+                }
+            }
+        }
+    }
+
+    public static void addAccessibleInventoryInformation(ItemStack stack, List<String> list, int minSlot, int maxSlot) {
+
+        int invSize = ((IInventoryContainerItem) stack.getItem()).getSizeInventory(stack);
+        ItemStack curStack;
+        ItemStack curStack2;
+
+        ArrayList<ItemStack> containedItems = new ArrayList<ItemStack>();
+
+        boolean[] visited = new boolean[invSize];
+
+        for (int i = minSlot; i < Math.min(invSize, maxSlot); i++) {
+            if (visited[i]) {
+                continue;
+            }
+            if (!stack.stackTagCompound.hasKey("Slot" + i)) {
+                continue;
+            }
+            curStack = ItemStack.loadItemStackFromNBT(stack.stackTagCompound.getCompoundTag("Slot" + i));
+            visited[i] = true;
+
+            if (curStack == null) {
+                continue;
+            }
+            containedItems.add(curStack);
+            for (int j = minSlot; j < Math.min(invSize, maxSlot); j++) {
+                if (visited[j]) {
+                    continue;
+                }
+                if (!stack.stackTagCompound.hasKey("Slot" + j)) {
+                    continue;
+                }
+                curStack2 = ItemStack.loadItemStackFromNBT(stack.stackTagCompound.getCompoundTag("Slot" + j));
+
+                if (curStack2 == null) {
+                    continue;
+                }
+                if (itemsEqualWithMetadata(curStack, curStack2)) {
+                    curStack.stackSize += curStack2.stackSize;
+                    visited[j] = true;
+                }
+            }
+        }
+        if (containedItems.size() > 0) {
+            list.add(StringHelper.localize("info.cofh.contents") + ":");
+        } else {
+            list.add(StringHelper.localize("info.cofh.empty"));
+        }
+        for (ItemStack item : containedItems) {
+            int maxStackSize = item.getMaxStackSize();
+
+            if (!StringHelper.displayStackCount || item.stackSize < maxStackSize || maxStackSize == 1) {
+                list.add("    " + StringHelper.BRIGHT_GREEN + item.stackSize + " " + StringHelper.getItemName(item));
+            } else {
+                if (item.stackSize % maxStackSize != 0) {
+                    list.add(
+                        "    " + StringHelper.BRIGHT_GREEN
+                            + maxStackSize
+                            + "x"
+                            + item.stackSize / maxStackSize
+                            + "+"
+                            + item.stackSize % maxStackSize
+                            + " "
+                            + StringHelper.getItemName(item));
+                } else {
+                    list.add(
+                        "    " + StringHelper.BRIGHT_GREEN
+                            + maxStackSize
+                            + "x"
+                            + item.stackSize / maxStackSize
+                            + " "
+                            + StringHelper.getItemName(item));
+                }
+            }
+        }
+    }
 
 }

@@ -9,15 +9,16 @@ import net.minecraft.item.ItemStack;
  */
 public class SlotPotionIngredient extends Slot {
 
-	public SlotPotionIngredient(IInventory inventory, int index, int x, int y) {
+    public SlotPotionIngredient(IInventory inventory, int index, int x, int y) {
 
-		super(inventory, index, x, y);
-	}
+        super(inventory, index, x, y);
+    }
 
-	@Override
-	public boolean isItemValid(ItemStack stack) {
+    @Override
+    public boolean isItemValid(ItemStack stack) {
 
-		return stack != null && stack.getItem().isPotionIngredient(stack);
-	}
+        return stack != null && stack.getItem()
+            .isPotionIngredient(stack);
+    }
 
 }

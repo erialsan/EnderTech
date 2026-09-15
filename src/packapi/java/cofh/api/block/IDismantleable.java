@@ -14,14 +14,14 @@ import net.minecraft.world.World;
  */
 public interface IDismantleable {
 
-	/**
-	 * Dismantles the block. If returnDrops is true, the drop(s) should be placed into the player's inventory.
-	 */
-	ArrayList<ItemStack> dismantleBlock(EntityPlayer player, World world, int x, int y, int z, boolean returnDrops);
+    /**
+     * Dismantles the block. If returnDrops is true, the drop(s) should be placed into the player's inventory.
+     */
+    ArrayList<ItemStack> dismantleBlock(EntityPlayer player, World world, int x, int y, int z, boolean returnDrops);
 
-	/**
-	 * Return true if the block can be dismantled. The criteria for this is entirely up to the block.
-	 */
-	boolean canDismantle(EntityPlayer player, World world, int x, int y, int z);
+    /**
+     * Return true if the block can be dismantled. The criteria for this is entirely up to the block.
+     */
+    boolean canDismantle(EntityPlayer player, World world, int x, int y, int z);
 
 }

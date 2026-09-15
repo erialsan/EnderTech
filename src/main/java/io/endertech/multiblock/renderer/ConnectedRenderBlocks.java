@@ -1,40 +1,42 @@
 package io.endertech.multiblock.renderer;
 
-import io.endertech.multiblock.texture.ConnectedTextureIcon;
-import io.endertech.util.helper.BlockHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class ConnectedRenderBlocks extends RenderBlocks
-{
-    public static final ForgeDirection neighborsBySide[][] = new ForgeDirection[][] {{ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST}, {ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST}, {ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.EAST, ForgeDirection.WEST}, {ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.WEST, ForgeDirection.EAST}, {ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.NORTH, ForgeDirection.SOUTH}, {ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.SOUTH, ForgeDirection.NORTH}};
+import io.endertech.multiblock.texture.ConnectedTextureIcon;
+import io.endertech.util.helper.BlockHelper;
+
+public class ConnectedRenderBlocks extends RenderBlocks {
+
+    public static final ForgeDirection neighborsBySide[][] = new ForgeDirection[][] {
+        { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST },
+        { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST },
+        { ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.EAST, ForgeDirection.WEST },
+        { ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.WEST, ForgeDirection.EAST },
+        { ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.NORTH, ForgeDirection.SOUTH },
+        { ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.SOUTH, ForgeDirection.NORTH } };
     private Block block;
     private int meta;
 
-    public static boolean checkBit(int a, int b)
-    {
+    public static boolean checkBit(int a, int b) {
         return (a & b) == b;
     }
 
-    public void setBlockToCompareTo(Block block, int meta)
-    {
+    public void setBlockToCompareTo(Block block, int meta) {
         this.block = block;
         this.meta = meta;
     }
 
-    public void setBlockAccess(IBlockAccess blockAccess)
-    {
+    public void setBlockAccess(IBlockAccess blockAccess) {
         this.blockAccess = blockAccess;
     }
 
-    public void renderSideFace(ConnectedTextureIcon icon, int index, double x, double y, double z, int side)
-    {
+    public void renderSideFace(ConnectedTextureIcon icon, int index, double x, double y, double z, int side) {
         icon.setCurrentRenderIcon(index);
-        switch (side)
-        {
+        switch (side) {
             case 0:
                 super.renderFaceYNeg(block, x, y, z, icon);
                 break;
@@ -56,16 +58,18 @@ public class ConnectedRenderBlocks extends RenderBlocks
 
     }
 
-    public int[] calculateConnectednessIndexes(IBlockAccess blockAccess, int x, int y, int z, int face)
-    {
+    public int[] calculateConnectednessIndexes(IBlockAccess blockAccess, int x, int y, int z, int face) {
         int[] iconIndexes = new int[5];
         ForgeDirection dir;
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             dir = neighborsBySide[face][i];
-            if (BlockHelper.areBlocksEqual(blockAccess, block, meta, x, y, z, dir))
-            {
-                iconIndexes[i + 1] = calculateConnectednessForSingleBlock(blockAccess, x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ, face);
+            if (BlockHelper.areBlocksEqual(blockAccess, block, meta, x, y, z, dir)) {
+                iconIndexes[i + 1] = calculateConnectednessForSingleBlock(
+                    blockAccess,
+                    x + dir.offsetX,
+                    y + dir.offsetY,
+                    z + dir.offsetZ,
+                    face);
                 iconIndexes[0] |= 1 << i;
             }
         }
@@ -73,15 +77,12 @@ public class ConnectedRenderBlocks extends RenderBlocks
         return iconIndexes;
     }
 
-    public int calculateConnectednessForSingleBlock(IBlockAccess blockAccess, int x, int y, int z, int face)
-    {
+    public int calculateConnectednessForSingleBlock(IBlockAccess blockAccess, int x, int y, int z, int face) {
         int iconIndex = 0;
         ForgeDirection dir;
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             dir = neighborsBySide[face][i];
-            if (BlockHelper.areBlocksEqual(blockAccess, block, meta, x, y, z, dir))
-            {
+            if (BlockHelper.areBlocksEqual(blockAccess, block, meta, x, y, z, dir)) {
                 iconIndex |= 1 << i;
             }
         }
@@ -89,16 +90,15 @@ public class ConnectedRenderBlocks extends RenderBlocks
         return iconIndex;
     }
 
-    public void renderSide(Block b, double x, double y, double z, ConnectedTextureIcon icon, int side)
-    {
+    public void renderSide(Block b, double x, double y, double z, ConnectedTextureIcon icon, int side) {
         int ix = (int) x;
         int iy = (int) y;
         int iz = (int) z;
 
-        // First check if we have a block in front of us of the same type - if so, just be completely transparent on this side
+        // First check if we have a block in front of us of the same type - if so, just be completely transparent on
+        // this side
         ForgeDirection towards = ForgeDirection.getOrientation(side);
-        if (BlockHelper.areBlocksEqual(blockAccess, block, meta, ix, iy, iz, towards))
-        {
+        if (BlockHelper.areBlocksEqual(blockAccess, block, meta, ix, iy, iz, towards)) {
             return;
         }
 
@@ -137,8 +137,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceYNeg(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceYNeg(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 0);
@@ -146,8 +145,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceYPos(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceYPos(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 1);
@@ -155,8 +153,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceZNeg(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceZNeg(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 2);
@@ -164,8 +161,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceZPos(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceZPos(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 3);
@@ -173,8 +169,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceXNeg(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceXNeg(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 4);
@@ -182,8 +177,7 @@ public class ConnectedRenderBlocks extends RenderBlocks
     }
 
     @Override
-    public void renderFaceXPos(Block block, double x, double y, double z, IIcon icon)
-    {
+    public void renderFaceXPos(Block block, double x, double y, double z, IIcon icon) {
         if (this.hasOverrideBlockTexture()) icon = this.overrideBlockTexture;
 
         if (icon instanceof ConnectedTextureIcon) this.renderSide(block, x, y, z, (ConnectedTextureIcon) icon, 5);

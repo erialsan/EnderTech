@@ -1,6 +1,5 @@
 package io.endertech.item;
 
-import io.endertech.util.fluid.BucketHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -9,34 +8,32 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
+import io.endertech.util.fluid.BucketHandler;
+
 // Derived from CoFHCore's ItemBucket
 
-public class ItemBucket extends ItemETBase
-{
+public class ItemBucket extends ItemETBase {
+
     Item container = Items.bucket;
 
-    public ItemBucket()
-    {
+    public ItemBucket() {
         super();
         setMaxStackSize(1);
         setContainerItem(container);
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
-    {
+    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
         MovingObjectPosition pos = this.getMovingObjectPositionFromPlayer(world, player, false);
 
-        if (pos == null || pos.typeOfHit != MovingObjectType.BLOCK)
-        {
+        if (pos == null || pos.typeOfHit != MovingObjectType.BLOCK) {
             return stack;
         }
         int x = pos.blockX;
         int y = pos.blockY;
         int z = pos.blockZ;
 
-        switch (pos.sideHit)
-        {
+        switch (pos.sideHit) {
             case 0:
                 --y;
                 break;
@@ -56,15 +53,14 @@ public class ItemBucket extends ItemETBase
                 ++x;
                 break;
         }
-        if (!player.canPlayerEdit(x, y, z, pos.sideHit, stack) || !world.isAirBlock(x, y, z) && world.getBlock(x, y, z).getMaterial().isSolid())
-        {
+        if (!player.canPlayerEdit(x, y, z, pos.sideHit, stack) || !world.isAirBlock(x, y, z) && world.getBlock(x, y, z)
+            .getMaterial()
+            .isSolid()) {
             return stack;
         }
 
-        if (BucketHandler.emptyBucket(world, x, y, z, stack))
-        {
-            if (!player.capabilities.isCreativeMode)
-            {
+        if (BucketHandler.emptyBucket(world, x, y, z, stack)) {
+            if (!player.capabilities.isCreativeMode) {
                 return new ItemStack(container);
             }
         }

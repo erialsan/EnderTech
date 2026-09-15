@@ -10,19 +10,19 @@ import net.minecraft.item.ItemStack;
  */
 public interface IAugmentable {
 
-	/**
-	 * Attempt to reconfigure the tile based on the Augmentations present.
-	 */
-	void installAugments();
+    /**
+     * Attempt to reconfigure the tile based on the Augmentations present.
+     */
+    void installAugments();
 
-	/**
-	 * Returns an array of the Augment slots for this Tile Entity.
-	 */
-	ItemStack[] getAugmentSlots();
+    /**
+     * Returns an array of the Augment slots for this Tile Entity.
+     */
+    ItemStack[] getAugmentSlots();
 
-	/**
-	 * Returns a status array for the Augmentations installed in the Tile Entity.
-	 */
-	boolean[] getAugmentStatus();
+    /**
+     * Returns a status array for the Augmentations installed in the Tile Entity.
+     */
+    boolean[] getAugmentStatus();
 
 }

@@ -7,4 +7,3 @@ package cofh.lib.gui.element.listbox;
 
 import cofh.lib.CoFHLibProps;
 import cpw.mods.fml.common.API;
-

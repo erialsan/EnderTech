@@ -10,13 +10,13 @@ package cofh.api.world;
  */
 public interface IFeatureHandler {
 
-	/**
-	 * Register a feature with an IFeatureHandler.
-	 *
-	 * @param feature
-	 *            The feature to register.
-	 * @return True if the registration was successful, false if a feature with that name existed.
-	 */
-	public boolean registerFeature(IFeatureGenerator feature);
+    /**
+     * Register a feature with an IFeatureHandler.
+     *
+     * @param feature
+     *                The feature to register.
+     * @return True if the registration was successful, false if a feature with that name existed.
+     */
+    public boolean registerFeature(IFeatureGenerator feature);
 
 }

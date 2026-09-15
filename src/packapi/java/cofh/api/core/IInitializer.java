@@ -8,10 +8,10 @@ package cofh.api.core;
  */
 public interface IInitializer {
 
-	boolean preInit();
+    boolean preInit();
 
-	boolean initialize();
+    boolean initialize();
 
-	boolean postInit();
+    boolean postInit();
 
 }

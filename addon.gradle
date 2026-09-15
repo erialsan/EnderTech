@@ -1,0 +1,4 @@
+ext.modVersion = "0.3.2"
+version = ext.modVersion
+
+sourceSets.main.java.srcDir("src/packapi/java")

@@ -7,4 +7,3 @@ package cofh.lib.gui.slot;
 
 import cofh.lib.CoFHLibProps;
 import cpw.mods.fml.common.API;
-

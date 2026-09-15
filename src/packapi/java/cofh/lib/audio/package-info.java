@@ -7,4 +7,3 @@ package cofh.lib.audio;
 
 import cofh.lib.CoFHLibProps;
 import cpw.mods.fml.common.API;
-

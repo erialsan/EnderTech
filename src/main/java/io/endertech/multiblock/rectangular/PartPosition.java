@@ -1,7 +1,7 @@
 package io.endertech.multiblock.rectangular;
 
-public enum PartPosition
-{
+public enum PartPosition {
+
     Unknown,
     Interior,
     FrameCorner,
@@ -13,10 +13,8 @@ public enum PartPosition
     EastFace,
     WestFace;
 
-    public boolean isFace(PartPosition position)
-    {
-        switch (position)
-        {
+    public boolean isFace(PartPosition position) {
+        switch (position) {
             case TopFace:
             case BottomFace:
             case NorthFace:

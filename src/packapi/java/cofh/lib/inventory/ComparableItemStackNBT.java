@@ -13,38 +13,38 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class ComparableItemStackNBT extends ComparableItemStack {
 
-	public NBTTagCompound tag;
+    public NBTTagCompound tag;
 
-	public ComparableItemStackNBT(ItemStack stack) {
+    public ComparableItemStackNBT(ItemStack stack) {
 
-		super(stack);
+        super(stack);
 
-		if (stack != null) {
-			if (stack.stackTagCompound != null) {
-				tag = (NBTTagCompound) stack.stackTagCompound.copy();
-			}
-		}
-	}
+        if (stack != null) {
+            if (stack.stackTagCompound != null) {
+                tag = (NBTTagCompound) stack.stackTagCompound.copy();
+            }
+        }
+    }
 
-	@Override
-	public boolean isStackEqual(ComparableItemStack other) {
+    @Override
+    public boolean isStackEqual(ComparableItemStack other) {
 
-		return super.isStackEqual(other) && isStackTagEqual((ComparableItemStackNBT) other);
-	}
+        return super.isStackEqual(other) && isStackTagEqual((ComparableItemStackNBT) other);
+    }
 
-	private boolean isStackTagEqual(ComparableItemStackNBT other) {
+    private boolean isStackTagEqual(ComparableItemStackNBT other) {
 
-		return tag == null ? other.tag == null : other.tag == null ? false : tag.equals(other.tag);
-	}
+        return tag == null ? other.tag == null : other.tag == null ? false : tag.equals(other.tag);
+    }
 
-	@Override
-	public ItemStack toItemStack() {
+    @Override
+    public ItemStack toItemStack() {
 
-		ItemStack ret = super.toItemStack();
-		if (ret != null) {
-			ret.stackTagCompound = (NBTTagCompound) tag.copy();
-		}
-		return ret;
-	}
+        ItemStack ret = super.toItemStack();
+        if (ret != null) {
+            ret.stackTagCompound = (NBTTagCompound) tag.copy();
+        }
+        return ret;
+    }
 
 }

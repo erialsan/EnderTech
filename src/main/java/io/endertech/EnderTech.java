@@ -1,5 +1,16 @@
 package io.endertech;
 
+import java.io.File;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -31,21 +42,15 @@ import io.endertech.util.fluid.BucketHandler;
 import io.endertech.util.helper.BlockHelper;
 import io.endertech.util.helper.LocalisationHelper;
 import io.endertech.util.helper.LogHelper;
-import io.endertech.util.helper.ModuleHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import java.io.File;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION_NUMBER, certificateFingerprint = Reference.FINGERPRINT, dependencies = "after:ThermalExpansion@[1.7.10R4.0.0B1,)")
-public class EnderTech
-{
+@Mod(
+    modid = Reference.MOD_ID,
+    name = Reference.MOD_NAME,
+    version = Reference.VERSION_NUMBER,
+    certificateFingerprint = Reference.FINGERPRINT,
+    dependencies = "after:ThermalExpansion@[1.7.10R4.0.0B1,)")
+public class EnderTech {
+
     public static final CreativeTabs tabET = new CreativeTabET();
     public static final GuiHandler guiHandler = new GuiHandler();
     @SuppressWarnings("unused")
@@ -58,34 +63,33 @@ public class EnderTech
 
     @EventHandler
     @SuppressWarnings("unused")
-    public void invalidFingerprint(FMLFingerprintViolationEvent event)
-    {
-        if (Reference.FINGERPRINT.equals("@FINGERPRINT@"))
-        {
+    public void invalidFingerprint(FMLFingerprintViolationEvent event) {
+        if (Reference.FINGERPRINT.equals("@FINGERPRINT@")) {
             LogHelper.warn(LocalisationHelper.localiseString("warning.fingerprint.missing"));
-        } else
-        {
+        } else {
             LogHelper.fatal(LocalisationHelper.localiseString("error.fingerprint.tampered"));
         }
     }
 
     @EventHandler
     @SuppressWarnings("unused")
-    public void preInit(FMLPreInitializationEvent event)
-    {
+    public void preInit(FMLPreInitializationEvent event) {
         // Configuration
-        ConfigHandler.init(event.getModConfigurationDirectory().getAbsolutePath() + File.separator + Reference.CHANNEL_NAME.toLowerCase() + File.separator);
+        ConfigHandler.init(
+            event.getModConfigurationDirectory()
+                .getAbsolutePath() + File.separator
+                + Reference.CHANNEL_NAME.toLowerCase()
+                + File.separator);
 
         LogHelper.debug("Loaded config");
 
-        if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") || GeneralConfig.forceLoadDevContent)
-        {
+        if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") || GeneralConfig.forceLoadDevContent) {
             loadDevModeContent = true;
         }
 
         // Pulsar module loading
-        //ModuleHelper.setupModules();
-        //ModuleHelper.pulsar.preInit(event);
+        // ModuleHelper.setupModules();
+        // ModuleHelper.pulsar.preInit(event);
 
         // Packet handler
         PacketHandler.instance.init();
@@ -96,8 +100,9 @@ public class EnderTech
         proxy.registerTickerHandlers();
 
         // KeyBinding handler
-        if (FMLCommonHandler.instance().getSide().isClient())
-        {
+        if (FMLCommonHandler.instance()
+            .getSide()
+            .isClient()) {
             KeyBindingHandler.init();
         }
 
@@ -117,8 +122,7 @@ public class EnderTech
 
     @EventHandler
     @SuppressWarnings("unused")
-    public void init(FMLInitializationEvent event)
-    {
+    public void init(FMLInitializationEvent event) {
         // GUI
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, guiHandler);
 
@@ -127,7 +131,7 @@ public class EnderTech
         PacketKeyPressed.init();
 
         // Pulsar loading
-        //ModuleHelper.pulsar.init(event);
+        // ModuleHelper.pulsar.init(event);
 
         // Renderers
         proxy.registerTESRs();
@@ -137,8 +141,12 @@ public class EnderTech
         proxy.registerItemRenderers();
 
         // Waila
-        FMLInterModComms.sendMessage("Waila", "register", "io.endertech.integration.waila.MultiblockWailaProvider.callbackRegister");
-        FMLInterModComms.sendMessage("Waila", "register", "io.endertech.integration.waila.GenericWailaProvider.callbackRegister");
+        FMLInterModComms.sendMessage(
+            "Waila",
+            "register",
+            "io.endertech.integration.waila.MultiblockWailaProvider.callbackRegister");
+        FMLInterModComms
+            .sendMessage("Waila", "register", "io.endertech.integration.waila.GenericWailaProvider.callbackRegister");
 
         LogHelper.debug("init complete");
 
@@ -149,16 +157,16 @@ public class EnderTech
 
     @EventHandler
     @SuppressWarnings("unused")
-    public void postInit(FMLPostInitializationEvent event)
-    {
+    public void postInit(FMLPostInitializationEvent event) {
         // Pulsar loading
-        //ModuleHelper.pulsar.postInit(event);
+        // ModuleHelper.pulsar.postInit(event);
 
         // Packet postInit
         PacketHandler.instance.postInit();
 
-        if (FMLCommonHandler.instance().getSide().isClient())
-        {
+        if (FMLCommonHandler.instance()
+            .getSide()
+            .isClient()) {
             MinecraftForge.EVENT_BUS.register(new GUIEventHandler((Minecraft.getMinecraft())));
         }
 
@@ -166,8 +174,7 @@ public class EnderTech
         Exchange.initSpecialBlocks();
 
         LogHelper.info(LocalisationHelper.localiseString("info.postinit.recipes"));
-        if (Loader.isModLoaded("ThermalExpansion"))
-        {
+        if (Loader.isModLoaded("ThermalExpansion")) {
             ItemStack capacitorReinforced = GameRegistry.findItemStack("ThermalExpansion", "capacitorReinforced", 1);
             ItemStack capacitorResonant = GameRegistry.findItemStack("ThermalExpansion", "capacitorResonant", 1);
             capacitor = capacitorResonant.getItem();
@@ -184,27 +191,77 @@ public class EnderTech
             ItemStack enderEyeStack = new ItemStack(Items.ender_eye);
             ItemStack goldenApple = new ItemStack(Items.golden_apple);
 
-            GameRegistry.addRecipe(new ShapedOreRecipe(ETItems.toolExchangerRedstone, new Object[] {"XEX", "ITI", "XCX", 'E', enderEyeStack, 'I', electrumIngot, 'C', capacitorReinforced, 'T', tesseract}));
-            GameRegistry.addRecipe(new ShapedOreRecipe(ETItems.toolExchangerResonant, new Object[] {"XEX", "ITI", "XCX", 'E', enderEyeStack, 'I', enderiumIngot, 'C', capacitorResonant, 'T', tesseract}));
-            GameRegistry.addRecipe(new ShapedOreRecipe(ETItems.toolExchangerResonant, new Object[] {"XSX", "IEI", "XCX", 'S', enderEyeStack, 'E', ETItems.toolExchangerRedstone, 'I', enderiumIngot, 'C', capacitorResonant, 'T', tesseract}));
+            GameRegistry.addRecipe(
+                new ShapedOreRecipe(
+                    ETItems.toolExchangerRedstone,
+                    new Object[] { "XEX", "ITI", "XCX", 'E', enderEyeStack, 'I', electrumIngot, 'C',
+                        capacitorReinforced, 'T', tesseract }));
+            GameRegistry.addRecipe(
+                new ShapedOreRecipe(
+                    ETItems.toolExchangerResonant,
+                    new Object[] { "XEX", "ITI", "XCX", 'E', enderEyeStack, 'I', enderiumIngot, 'C', capacitorResonant,
+                        'T', tesseract }));
+            GameRegistry.addRecipe(
+                new ShapedOreRecipe(
+                    ETItems.toolExchangerResonant,
+                    new Object[] { "XSX", "IEI", "XCX", 'S', enderEyeStack, 'E', ETItems.toolExchangerRedstone, 'I',
+                        enderiumIngot, 'C', capacitorResonant, 'T', tesseract }));
 
-            ItemStack enderTankFrame = new ItemStack(BlockTankPart.itemBlockTankFrame.getItem(), 8, BlockTankPart.itemBlockTankFrame.getItemDamage());
-            ItemStack enderTankEnergyInput = new ItemStack(BlockTankPart.itemBlockTankEnergyInput.getItem(), 8, BlockTankPart.itemBlockTankEnergyInput.getItemDamage());
-            ItemStack enderTankValve = new ItemStack(BlockTankPart.itemBlockTankValve.getItem(), 8, BlockTankPart.itemBlockTankValve.getItemDamage());
-            ItemStack enderTankGlass = new ItemStack(BlockMultiblockGlass.itemBlockMultiblockGlass.getItem(), 16, BlockMultiblockGlass.itemBlockMultiblockGlass.getItemDamage());
+            ItemStack enderTankFrame = new ItemStack(
+                BlockTankPart.itemBlockTankFrame.getItem(),
+                8,
+                BlockTankPart.itemBlockTankFrame.getItemDamage());
+            ItemStack enderTankEnergyInput = new ItemStack(
+                BlockTankPart.itemBlockTankEnergyInput.getItem(),
+                8,
+                BlockTankPart.itemBlockTankEnergyInput.getItemDamage());
+            ItemStack enderTankValve = new ItemStack(
+                BlockTankPart.itemBlockTankValve.getItem(),
+                8,
+                BlockTankPart.itemBlockTankValve.getItemDamage());
+            ItemStack enderTankGlass = new ItemStack(
+                BlockMultiblockGlass.itemBlockMultiblockGlass.getItem(),
+                16,
+                BlockMultiblockGlass.itemBlockMultiblockGlass.getItemDamage());
             ItemStack enderTankController = BlockTankController.itemBlockTankController;
 
-            GameRegistry.addRecipe(enderTankFrame, new Object[] {"IEI", "EFE", "IEI", 'I', enderiumNugget, 'F', machineResonant, 'E', enderEyeStack});
-            GameRegistry.addRecipe(enderTankEnergyInput, new Object[] {"ICI", "EFE", "ITI", 'I', enderiumNugget, 'F', machineResonant, 'C', capacitorResonant, 'T', tesseract, 'E', enderEyeStack});
-            GameRegistry.addRecipe(enderTankValve, new Object[] {"IAI", "EFE", "ITI", 'I', enderiumNugget, 'A', tankResonant, 'F', machineResonant, 'T', tesseract, 'E', enderEyeStack});
-            GameRegistry.addRecipe(enderTankController, new Object[] {"IEI", "EFE", "ITI", 'I', enderiumNugget, 'F', machineResonant, 'T', tesseract, 'E', enderEyeStack});
-            GameRegistry.addRecipe(enderTankGlass, new Object[] {"GIG", "EFE", "GIG", 'I', enderiumNugget, 'G', hardenedGlass, 'F', machineResonant, 'E', enderEyeStack});
+            GameRegistry.addRecipe(
+                enderTankFrame,
+                new Object[] { "IEI", "EFE", "IEI", 'I', enderiumNugget, 'F', machineResonant, 'E', enderEyeStack });
+            GameRegistry.addRecipe(
+                enderTankEnergyInput,
+                new Object[] { "ICI", "EFE", "ITI", 'I', enderiumNugget, 'F', machineResonant, 'C', capacitorResonant,
+                    'T', tesseract, 'E', enderEyeStack });
+            GameRegistry.addRecipe(
+                enderTankValve,
+                new Object[] { "IAI", "EFE", "ITI", 'I', enderiumNugget, 'A', tankResonant, 'F', machineResonant, 'T',
+                    tesseract, 'E', enderEyeStack });
+            GameRegistry.addRecipe(
+                enderTankController,
+                new Object[] { "IEI", "EFE", "ITI", 'I', enderiumNugget, 'F', machineResonant, 'T', tesseract, 'E',
+                    enderEyeStack });
+            GameRegistry.addRecipe(
+                enderTankGlass,
+                new Object[] { "GIG", "EFE", "GIG", 'I', enderiumNugget, 'G', hardenedGlass, 'F', machineResonant, 'E',
+                    enderEyeStack });
 
-            GameRegistry.addRecipe(BlockChargePad.itemChargePadResonant, new Object[] {"IEI", "CFC", "IAI", 'I', enderiumIngot, 'F', machineResonant, 'E', enderEyeStack, 'C', powerCoilElectrumStack, 'T', tesseract, 'A', capacitorResonant});
-            GameRegistry.addRecipe(BlockChargePad.itemChargePadRedstone, new Object[] {"IEI", "CFC", "IAI", 'I', electrumIngot, 'F', machineRedstone, 'E', enderEyeStack, 'C', powerCoilElectrumStack, 'T', tesseract, 'A', capacitorReinforced});
+            GameRegistry.addRecipe(
+                BlockChargePad.itemChargePadResonant,
+                new Object[] { "IEI", "CFC", "IAI", 'I', enderiumIngot, 'F', machineResonant, 'E', enderEyeStack, 'C',
+                    powerCoilElectrumStack, 'T', tesseract, 'A', capacitorResonant });
+            GameRegistry.addRecipe(
+                BlockChargePad.itemChargePadRedstone,
+                new Object[] { "IEI", "CFC", "IAI", 'I', electrumIngot, 'F', machineRedstone, 'E', enderEyeStack, 'C',
+                    powerCoilElectrumStack, 'T', tesseract, 'A', capacitorReinforced });
 
-            GameRegistry.addRecipe(BlockHealthPad.itemHealthPadResonant, new Object[] {"IEI", "CFC", "IAI", 'I', enderiumIngot, 'F', machineResonant, 'E', enderEyeStack, 'C', goldenApple, 'T', tesseract, 'A', capacitorResonant});
-            GameRegistry.addRecipe(BlockHealthPad.itemHealthPadRedstone, new Object[] {"IEI", "CFC", "IAI", 'I', electrumIngot, 'F', machineRedstone, 'E', enderEyeStack, 'C', goldenApple, 'T', tesseract, 'A', capacitorReinforced});
+            GameRegistry.addRecipe(
+                BlockHealthPad.itemHealthPadResonant,
+                new Object[] { "IEI", "CFC", "IAI", 'I', enderiumIngot, 'F', machineResonant, 'E', enderEyeStack, 'C',
+                    goldenApple, 'T', tesseract, 'A', capacitorResonant });
+            GameRegistry.addRecipe(
+                BlockHealthPad.itemHealthPadRedstone,
+                new Object[] { "IEI", "CFC", "IAI", 'I', electrumIngot, 'F', machineRedstone, 'E', enderEyeStack, 'C',
+                    goldenApple, 'T', tesseract, 'A', capacitorReinforced });
         } else {
             LogHelper.warn(LocalisationHelper.localiseString("warning.thermalexpansion.missing"));
         }

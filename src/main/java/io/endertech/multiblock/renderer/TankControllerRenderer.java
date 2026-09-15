@@ -1,11 +1,5 @@
 package io.endertech.multiblock.renderer;
 
-import io.endertech.block.ETBlocks;
-import io.endertech.config.GeneralConfig;
-import io.endertech.multiblock.block.BlockTankController;
-import io.endertech.multiblock.controller.ControllerTank;
-import io.endertech.multiblock.tile.TileTankController;
-import io.endertech.util.BlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,19 +13,26 @@ import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+
 import org.lwjgl.opengl.GL11;
 
-public class TankControllerRenderer extends TileEntitySpecialRenderer implements IItemRenderer
-{
+import io.endertech.block.ETBlocks;
+import io.endertech.config.GeneralConfig;
+import io.endertech.multiblock.block.BlockTankController;
+import io.endertech.multiblock.controller.ControllerTank;
+import io.endertech.multiblock.tile.TileTankController;
+import io.endertech.util.BlockCoord;
+
+public class TankControllerRenderer extends TileEntitySpecialRenderer implements IItemRenderer {
+
     private RenderBlocks renderer = new RenderBlocks();
 
-    public static ResourceLocation getFluidSheet(Fluid liquid)
-    {
+    public static ResourceLocation getFluidSheet(Fluid liquid) {
         return TextureMap.locationBlocksTexture;
     }
 
-    public void renderControllerBlock(RenderBlocks renderer, BlockTankController block, int meta, ForgeDirection front, double translateX, double translateY, double translateZ)
-    {
+    public void renderControllerBlock(RenderBlocks renderer, BlockTankController block, int meta, ForgeDirection front,
+        double translateX, double translateY, double translateZ) {
         Tessellator tessellator = Tessellator.instance;
 
         renderer.setRenderBoundsFromBlock(block);
@@ -71,8 +72,7 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
     }
 
     @Override
-    public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float f)
-    {
+    public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float f) {
         if (!(tile instanceof TileTankController)) return;
 
         TileTankController tank = (TileTankController) tile;
@@ -92,15 +92,13 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
 
         GL11.glPopMatrix();
 
-
         ControllerTank controller = tank.getTankController();
         if (controller == null) return;
 
         BlockCoord min = controller.getMinimumCoord();
         BlockCoord max = controller.getMaximumCoord();
 
-        if (controller != null && controller.isAssembled() && min != null && controller.tank.getFluid() != null)
-        {
+        if (controller != null && controller.isAssembled() && min != null && controller.tank.getFluid() != null) {
             BlockCoord rMin = new BlockCoord(tile.xCoord - min.x, tile.yCoord - min.y, tile.zCoord - min.z);
 
             double diff = controller.tank.getFluidAmount() - controller.lastTank.getFluidAmount();
@@ -110,17 +108,14 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
             if (ratio >= 0.8) ratio = 0.8;
 
             if (controller.renderedOnce) controller.renderAddition += diff * f * ratio * (1.0 / 10);
-            else
-            {
+            else {
                 controller.renderAddition += diff;
                 controller.renderedOnce = true;
             }
 
-            if (diff < 0)
-            {
+            if (diff < 0) {
                 if (controller.renderAddition < diff) controller.renderAddition = (int) diff;
-            } else
-            {
+            } else {
                 if (controller.renderAddition > diff) controller.renderAddition = (int) diff;
             }
 
@@ -131,13 +126,11 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
             double capacityPerUnitHeight = capacity / unitHeights;
             double[] levelAmounts = new double[unitHeights];
             int stopLevel = 0;
-            for (int level = 0; (level < unitHeights) && (stopLevel == 0); level++)
-            {
+            for (int level = 0; (level < unitHeights) && (stopLevel == 0); level++) {
                 double levelAmount = capacityPerUnitHeight;
                 amount -= capacityPerUnitHeight;
 
-                if (amount <= 0)
-                {
+                if (amount <= 0) {
                     levelAmount += amount;
                     stopLevel = level + 1;
                 }
@@ -148,7 +141,8 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
             boolean setOpacity = false;
             float opacity = 1;
 
-            final Fluid fluid = controller.tank.getFluid().getFluid();
+            final Fluid fluid = controller.tank.getFluid()
+                .getFluid();
             final IIcon texture = fluid.getStillIcon();
             if (texture == null) return;
 
@@ -160,20 +154,15 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-
             final int colour = fluid.getColor(new FluidStack(fluid, 1));
             bindTexture(getFluidSheet(fluid));
 
-            if (fluid.getDensity() < 0)
-            {
-                if (GeneralConfig.gasTopToBottom)
-                {
+            if (fluid.getDensity() < 0) {
+                if (GeneralConfig.gasTopToBottom) {
                     GL11.glTranslatef(0f, 1f, 0f);
                     GL11.glRotatef(180, 1.0f, 0.0f, 1.0f);
-                } else
-                {
-                    for (int i = 0; i < unitHeights; i++)
-                        levelAmounts[i] = capacityPerUnitHeight;
+                } else {
+                    for (int i = 0; i < unitHeights; i++) levelAmounts[i] = capacityPerUnitHeight;
 
                     setOpacity = true;
                     stopLevel = unitHeights;
@@ -182,16 +171,22 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
                 }
             }
 
-            if (stopLevel != 0)
-            {
-                for (int level = 0; level < stopLevel; level++)
-                {
-                    if (levelAmounts[level] > 0)
-                    {
+            if (stopLevel != 0) {
+                for (int level = 0; level < stopLevel; level++) {
+                    if (levelAmounts[level] > 0) {
                         double height = levelAmounts[level] / capacityPerUnitHeight;
                         if (height > 0 && height < 0.02) height = 0.02;
 
-                        renderFluidBlocks(height, colour, texture, (max.x - min.x - 1), level, stopLevel, (max.z - min.z - 1), setOpacity, opacity);
+                        renderFluidBlocks(
+                            height,
+                            colour,
+                            texture,
+                            (max.x - min.x - 1),
+                            level,
+                            stopLevel,
+                            (max.z - min.z - 1),
+                            setOpacity,
+                            opacity);
                     }
                 }
             }
@@ -203,8 +198,8 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
         }
     }
 
-    public void renderFluidBlocks(double height, int colour, IIcon texture, int repx, int yoffset, int maxyoffset, int repz, boolean setOpacity, float opacity)
-    {
+    public void renderFluidBlocks(double height, int colour, IIcon texture, int repx, int yoffset, int maxyoffset,
+        int repz, boolean setOpacity, float opacity) {
         Tessellator t = Tessellator.instance;
 
         final double ySouthEast = height;
@@ -223,29 +218,30 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
         final float g = (colour >> 8 & 0xFF) / 255.0F;
         final float b = (colour & 0xFF) / 255.0F;
 
-        for (int rx = 0; rx < repx; rx++)
-        {
+        for (int rx = 0; rx < repx; rx++) {
             int ry = yoffset;
-            for (int rz = 0; rz < repz; rz++)
-            {
+            for (int rz = 0; rz < repz; rz++) {
                 t.startDrawingQuads();
                 if (!setOpacity) t.setColorOpaque_F(r, g, b);
                 else t.setColorRGBA_F(r, g, b, opacity);
 
                 // north side
-                if (rz == 0)
-                {
+                if (rz == 0) {
                     t.addVertexWithUV(0.5 + rx, -0.5 + ry, -0.5, uMax, vMin); // bottom
                     t.addVertexWithUV(-0.5 + rx, -0.5 + ry, -0.5, uMin, vMin); // bottom
                     // top north/west
-                    t.addVertexWithUV(-0.5 + rx, -0.5 + yNorthWest + ry, -0.5 + rz, uMin, vMin + (vHeight * yNorthWest));
+                    t.addVertexWithUV(
+                        -0.5 + rx,
+                        -0.5 + yNorthWest + ry,
+                        -0.5 + rz,
+                        uMin,
+                        vMin + (vHeight * yNorthWest));
                     // top north/east
                     t.addVertexWithUV(0.5 + rx, -0.5 + yNorthEast + ry, -0.5 + rz, uMax, vMin + (vHeight * yNorthEast));
                 }
 
                 // south side
-                if (rz == repz - 1)
-                {
+                if (rz == repz - 1) {
                     t.addVertexWithUV(0.5 + rx, -0.5 + ry, 0.5 + rz, uMin, vMin);
                     // top south east
                     t.addVertexWithUV(0.5 + rx, -0.5 + ySouthEast + ry, 0.5 + rz, uMin, vMin + (vHeight * ySouthEast));
@@ -255,8 +251,7 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
                 }
 
                 // east side
-                if (rx == repx - 1)
-                {
+                if (rx == repx - 1) {
                     t.addVertexWithUV(0.5 + rx, -0.5 + ry, -0.5 + rz, uMin, vMin);
                     // top north/east
                     t.addVertexWithUV(0.5 + rx, -0.5 + yNorthEast + ry, -0.5 + rz, uMin, vMin + (vHeight * yNorthEast));
@@ -266,19 +261,22 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
                 }
 
                 // west side
-                if (rx == 0)
-                {
+                if (rx == 0) {
                     t.addVertexWithUV(-0.5 + rx, -0.5 + ry, 0.5 + rz, uMin, vMin);
                     // top south/west
                     t.addVertexWithUV(-0.5 + rx, -0.5 + ySouthWest + ry, 0.5 + rz, uMin, vMin + (vHeight * ySouthWest));
                     // top north/west
-                    t.addVertexWithUV(-0.5 + rx, -0.5 + yNorthWest + ry, -0.5 + rz, uMax, vMin + (vHeight * yNorthWest));
+                    t.addVertexWithUV(
+                        -0.5 + rx,
+                        -0.5 + yNorthWest + ry,
+                        -0.5 + rz,
+                        uMax,
+                        vMin + (vHeight * yNorthWest));
                     t.addVertexWithUV(-0.5 + rx, -0.5 + ry, -0.5 + rz, uMax, vMin);
                 }
                 // top
                 // south east
-                if (ry == maxyoffset - 1)
-                {
+                if (ry == maxyoffset - 1) {
                     t.addVertexWithUV(0.5 + rx, -0.5 + ySouthEast + ry, 0.5 + rz, uMax, vMin);
                     // north east
                     t.addVertexWithUV(0.5 + rx, -0.5 + yNorthEast + ry, -0.5 + rz, uMin, vMin);
@@ -288,8 +286,7 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
                     t.addVertexWithUV(-0.5 + rx, -0.5 + ySouthWest + ry, 0.5 + rz, uMax, vMax);
                 }
 
-                if (ry == 0)
-                {
+                if (ry == 0) {
                     // bottom
                     t.addVertexWithUV(0.5 + rx, -0.5 + ry, -0.5 + rz, uMax, vMin);
                     t.addVertexWithUV(0.5 + rx, -0.5 + ry, 0.5 + rz, uMin, vMin);
@@ -304,50 +301,42 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
     }
 
     @Override
-    public boolean handleRenderType(ItemStack item, ItemRenderType type)
-    {
+    public boolean handleRenderType(ItemStack item, ItemRenderType type) {
         return true;
     }
 
     @Override
-    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
-    {
+    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper) {
         return true;
     }
 
     @Override
-    public void renderItem(ItemRenderType type, ItemStack item, Object... data)
-    {
+    public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
         float x = 0F, y = 0F, z = 0F;
 
-        switch (type)
-        {
-            case ENTITY:
-            {
+        switch (type) {
+            case ENTITY: {
                 x = -0.5F;
                 y = -0.25F;
                 z = -0.5F;
 
                 break;
             }
-            case EQUIPPED:
-            {
+            case EQUIPPED: {
                 x = 0F;
                 y = 0F;
                 z = 0F;
 
                 break;
             }
-            case EQUIPPED_FIRST_PERSON:
-            {
+            case EQUIPPED_FIRST_PERSON: {
                 x = 0F;
                 y = 0F;
                 z = 0F;
 
                 break;
             }
-            case INVENTORY:
-            {
+            case INVENTORY: {
                 x = 0F;
                 y = -0.1F;
                 z = 0F;
@@ -361,8 +350,15 @@ public class TankControllerRenderer extends TileEntitySpecialRenderer implements
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, z);
         renderer.setRenderBoundsFromBlock(ETBlocks.blockTankController);
-        //renderer.blockAccess = RenderBlocks.getInstance().blockAccess;
-        this.renderControllerBlock(renderer, (BlockTankController) ETBlocks.blockTankController, 0, ForgeDirection.EAST, 0, 0, 0);
+        // renderer.blockAccess = RenderBlocks.getInstance().blockAccess;
+        this.renderControllerBlock(
+            renderer,
+            (BlockTankController) ETBlocks.blockTankController,
+            0,
+            ForgeDirection.EAST,
+            0,
+            0,
+            0);
 
         GL11.glPopMatrix();
     }

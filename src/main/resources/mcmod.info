@@ -1,9 +1,9 @@
 [{
-    "modid": "EnderTech",
-    "name": "EnderTech",
+    "modid": "${modId}",
+    "name": "${modName}",
     "description": "Ender themed technological expansion.",
-    "version": "${version}",
-    "mcversion": "${mcversion}",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
     "url": "https://github.com/carrotengineer/EnderTech",
     "updateUrl": "",
     "authorList": ["voxelcarrot", "Arkan"],
@@ -14,5 +14,5 @@
     "requiredMods": [],
     "dependencies": [],
     "dependants": [],
-    "useDependencyInformation": "false"
+    "useDependencyInformation": true
 }]

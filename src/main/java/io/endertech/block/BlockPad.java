@@ -153,7 +153,7 @@ public abstract class BlockPad extends BlockET implements ITileEntityProvider, I
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs creativeTabs, List blockList) {
+    public void getSubBlocks(Item item, CreativeTabs creativeTabs, List<ItemStack> blockList) {
         blockList.add(new ItemStack(this, 1, 0));
         blockList.add(new ItemStack(this, 1, 2));
         blockList.add(new ItemStack(this, 1, 1));

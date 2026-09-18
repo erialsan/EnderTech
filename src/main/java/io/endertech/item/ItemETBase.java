@@ -1,9 +1,7 @@
 package io.endertech.item;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -71,12 +69,7 @@ public class ItemETBase extends Item {
             return;
         }
 
-        Iterator it = items.entrySet()
-            .iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-
-            String name = (String) entry.getValue();
+        for (String name : items.values()) {
             String icon_name = "endertech:" + getUnlocalizedName().replace("item.endertech.", "") + "/" + name;
             LogHelper.debug("Registering icon: " + icon_name);
             icons.put(name, iconRegister.registerIcon(icon_name));
@@ -94,13 +87,9 @@ public class ItemETBase extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
-        Iterator it = items.entrySet()
-            .iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-
-            par3List.add(new ItemStack(par1, 1, (Integer) entry.getKey()));
+    public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List<ItemStack> par3List) {
+        for (Integer meta : items.keySet()) {
+            par3List.add(new ItemStack(par1, 1, meta));
         }
     }
 

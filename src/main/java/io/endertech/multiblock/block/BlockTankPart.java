@@ -231,7 +231,7 @@ public class BlockTankPart extends BlockET implements ITileEntityProvider, IOutl
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List par3List) {
+    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List<ItemStack> par3List) {
         par3List.add(getTankFrameItemStack());
         par3List.add(getTankValveItemStack());
         par3List.add(getTankEnergyInputItemStack());

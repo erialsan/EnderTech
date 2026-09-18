@@ -28,7 +28,7 @@ public abstract class ItemBlockPad extends ItemBlockBasic implements IEnergyCont
 
     protected abstract int getReceive(int meta);
 
-    protected abstract void addExtraShiftInfo(ItemStack stack, List list);
+    protected abstract void addExtraShiftInfo(ItemStack stack, List<String> list);
 
     @Override
     public EnumRarity getRarity(ItemStack par1ItemStack) {
@@ -43,7 +43,7 @@ public abstract class ItemBlockPad extends ItemBlockBasic implements IEnergyCont
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean check) {
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean check) {
         super.addInformation(stack, player, list, check);
 
         if (KeyHelper.isShiftDown()) {

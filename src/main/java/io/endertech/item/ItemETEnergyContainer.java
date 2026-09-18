@@ -115,12 +115,17 @@ public class ItemETEnergyContainer extends ItemETBase implements IEnergyContaine
     }
 
     @Override
-    public int getDisplayDamage(ItemStack stack) {
-        if (stack.stackTagCompound == null) {
-            return 1 + this.getMaxEnergyStored(stack);
-        }
+    public boolean showDurabilityBar(ItemStack stack) {
+        return true;
+    }
 
-        return 1 + this.getMaxEnergyStored(stack) - this.getEnergyStored(stack);
+    @Override
+    public double getDurabilityForDisplay(ItemStack stack) {
+        int max = this.getMaxEnergyStored(stack);
+        if (max <= 0) {
+            return 1.0D;
+        }
+        return 1.0D - ((double) this.getEnergyStored(stack) / (double) max);
     }
 
     @Override

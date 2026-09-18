@@ -23,7 +23,7 @@ import io.endertech.util.inventory.InventoryHelper;
 public class WorldEventHandler {
 
     // Do exchanges per dimension
-    public static Map<Integer, Set<Exchange>> exchanges = new HashMap();
+    public static Map<Integer, Set<Exchange>> exchanges = new HashMap<>();
 
     public static void queueExchangeRequest(World world, BlockCoord origin, int radius, Block source, int sourceMeta,
         ItemStack target, EntityPlayer player, int hotbar_id, ForgeDirection orientation) {
@@ -32,16 +32,15 @@ public class WorldEventHandler {
         }
 
         int dimensionId = world.provider.dimensionId;
-        Set<Exchange> queue = (LinkedHashSet) exchanges.get(dimensionId);
+        Set<Exchange> queue = exchanges.get(dimensionId);
 
         if (queue == null) {
-            exchanges.put(dimensionId, new LinkedHashSet());
-            queue = exchanges.get(dimensionId);
+            queue = new LinkedHashSet<>();
+            exchanges.put(dimensionId, queue);
         }
 
         queue.add(new Exchange(origin, radius, source, sourceMeta, target, player, hotbar_id, orientation));
         world.playSoundAtEntity(player, "mob.endermen.portal", 1.0F, 1.0F);
-        exchanges.put(dimensionId, queue);
     }
 
     @SubscribeEvent

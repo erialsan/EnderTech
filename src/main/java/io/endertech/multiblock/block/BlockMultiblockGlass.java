@@ -86,7 +86,7 @@ public class BlockMultiblockGlass extends BlockET implements ITileEntityProvider
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List par3List) {
+    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List<ItemStack> par3List) {
         for (int i = 0; i < subBlocks.length; i++) {
             par3List.add(new ItemStack(item, 1, i));
         }

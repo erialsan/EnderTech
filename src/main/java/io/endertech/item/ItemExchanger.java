@@ -71,7 +71,7 @@ public class ItemExchanger extends ItemExchangerBase implements IKeyHandler, IOu
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean check) {
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean check) {
         super.addInformation(stack, player, list, check);
 
         if (KeyHelper.isShiftDown()) {

@@ -26,7 +26,7 @@ public class ItemBlockChargePad extends ItemBlockPad {
     }
 
     @Override
-    protected void addExtraShiftInfo(ItemStack stack, List list) {
+    protected void addExtraShiftInfo(ItemStack stack, List<String> list) {
         list.add(
             LocalisationHelper.localiseString(
                 "info.charge.send",

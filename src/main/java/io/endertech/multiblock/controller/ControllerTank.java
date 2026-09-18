@@ -11,7 +11,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -377,12 +376,7 @@ public class ControllerTank extends RectangularMultiblockControllerBase
 
     private String getFluidStringOrNone(FluidStack fluid) {
         if (fluid == null) return "none";
-        else return getFluidStringOrNone(fluid.getFluid());
-    }
-
-    private String getFluidStringOrNone(Fluid fluid) {
-        if (fluid == null) return "none";
-        else return fluid.getLocalizedName();
+        return fluid.getLocalizedName();
     }
 
     @Override

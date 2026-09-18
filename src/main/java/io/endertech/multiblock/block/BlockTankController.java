@@ -83,7 +83,7 @@ public class BlockTankController extends BlockET implements ITileEntityProvider,
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List par3List) {
+    public void getSubBlocks(Item item, CreativeTabs par2CreativeTabs, List<ItemStack> par3List) {
         par3List.add(getTankControllerItemStack());
     }
 

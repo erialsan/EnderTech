@@ -24,7 +24,7 @@ public class ItemBlockHealthPad extends ItemBlockPad {
     }
 
     @Override
-    protected void addExtraShiftInfo(ItemStack stack, List list) {
+    protected void addExtraShiftInfo(ItemStack stack, List<String> list) {
         list.add("Ticks per heal: " + TileHealthPad.TICKS_PER_HEAL[stack.getItemDamage()]);
     }
 }
